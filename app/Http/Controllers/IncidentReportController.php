@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\IncidentReport;
-use App\Support\Eirv3Access;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -20,10 +21,10 @@ class IncidentReportController extends Controller
 
     public function index(): View
     {
-        abort_unless(Eirv3Access::canCreate(Auth::user()), 403);
+        Gate::authorize('viewAny', IncidentReport::class);
 
         $reports = IncidentReport::query()
-            ->when(! Eirv3Access::canReview(Auth::user()), fn ($query) =>
+            ->when(Auth::user()->role->slug === 'user', fn ($query) =>
                 $query->where('reporter_id', Auth::id())
             )
             ->with('reporter:id,name')
@@ -35,18 +36,21 @@ class IncidentReportController extends Controller
 
     public function create(): View
     {
-        abort_unless(Eirv3Access::canCreate(Auth::user()), 403);
+        Gate::authorize('create', IncidentReport::class);
         return view('ir.form', ['incident' => null, 'departments' => self::DEPARTMENTS]);
     }
 
     public function store(Request $request): RedirectResponse
     {
-        abort_unless(Eirv3Access::canCreate($request->user()), 403);
+        Gate::authorize('create', IncidentReport::class);
+        
         $data = $this->validateReporter($request);
         $data['reporter_id'] = $request->user()->id;
         $data['reported_at'] = now()->toDateString();
+        $data['state'] = \App\States\IncidentState\Reported::class;
         $data['status'] = 'submitted';
         $data['reporter_attested'] = true;
+        
         $incident = IncidentReport::create($data);
 
         return redirect()->route('ir.show', $incident)
@@ -55,7 +59,8 @@ class IncidentReportController extends Controller
 
     public function show(IncidentReport $incidentReport): View
     {
-        abort_unless(Eirv3Access::canView(Auth::user(), $incidentReport->reporter_id), 403);
+        Gate::authorize('view', $incidentReport);
+        
         $incidentReport->load('reporter:id,name', 'reviewer:id,name');
 
         return view('ir.show', ['incident' => $incidentReport]);
@@ -74,7 +79,6 @@ class IncidentReportController extends Controller
         $data['status'] = 'submitted';
         $data['reported_at'] = now()->toDateString();
         $data['reporter_attested'] = true;
-        // A returned report needs a new QATU decision.
         $data['reviewer_id'] = null;
         $data['reviewer_name'] = null;
         $data['reviewer_designation'] = null;
@@ -93,7 +97,7 @@ class IncidentReportController extends Controller
     {
         abort_unless(
             Auth::check()
-            && Eirv3Access::canCreate(Auth::user())
+            && Gate::allows('create', IncidentReport::class)
             && $incident->reporter_id === Auth::id()
             && $incident->status === 'returned',
             403

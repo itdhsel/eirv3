@@ -3,12 +3,13 @@
 @section('content')
 @php
     $roleNames = [
-        'super_admin' => 'Super Admin',
-        'user' => 'User',
-        'qatu' => 'QATU',
-        'director' => 'Director',
+        'superadmin' => 'Super Admin',
+        'qa'         => 'Quality Assurance',
+        'hod'        => 'Head of Department',
+        'lo'         => 'Liaison Officer',
+        'user'       => 'Staff / User',
+        'director'   => 'Hospital Director'
     ];
-    $isReviewer = in_array($role, ['super_admin', 'qatu'], true);
 @endphp
 
 <section class="dash-hero" aria-labelledby="dash-welcome-title">
@@ -16,7 +17,7 @@
         <span class="dash-eyebrow">HOSPITAL SELAYANG · QA/PRSK MODULE</span>
         <h1 id="dash-welcome-title">e-IR <span>System</span></h1>
         <p>Welcome, {{ auth()->user()->name }}.</p>
-        <p class="dash-hero-subtitle">Your {{ $roleNames[$role] }} workspace for incident reporting and review.</p>
+        <p class="dash-hero-subtitle">Your {{ $roleNames[$role] ?? ucfirst($role ?? 'Unknown') }} workspace for incident reporting and review.</p>
     </div>
     <div class="dash-hero-mark" aria-hidden="true">✚</div>
 </section>
@@ -40,7 +41,7 @@
             <div><span class="dash-section-label">INCIDENT REPORTING OVERVIEW</span>
                 <h2 id="stats-heading">{{ $role === 'user' ? 'My incident reports' : 'Incident report overview' }}</h2>
             </div>
-            <span class="dash-role-tag">{{ $roleNames[$role] }}</span>
+            <span class="dash-role-tag">{{ $roleNames[$role] ?? ucfirst($role ?? '') }}</span>
         </div>
 
         <div class="dash-stat-grid">
@@ -78,10 +79,10 @@
         <div class="dash-actions">
             <a href="{{ route('ir.create') }}" class="dash-action dash-action-primary"><span aria-hidden="true">＋</span><span>New Incident Report</span></a>
             <a href="{{ route('ir.index') }}" class="dash-action"><span aria-hidden="true">☷</span><span>List of IR</span></a>
-            @if ($role === 'super_admin')
+            @if ($role === 'superadmin')
                 <a href="{{ route('admin.users.index') }}" class="dash-action"><span aria-hidden="true">⚙</span><span>User Management</span></a>
             @endif
-            @if ($role === 'qatu')
+            @if ($role === 'qa')
                 <span class="dash-action dash-action-disabled" aria-label="Weekly and monthly reports: coming soon"><span aria-hidden="true">▥</span><span>Reports (KIV)</span></span>
             @endif
         </div>
