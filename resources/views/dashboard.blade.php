@@ -1,95 +1,31 @@
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>eIRv3</title>
-
-    <style>
-        * { box-sizing: border-box; }
-
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f6f9;
-            color: #243247;
-        }
-
-        header {
-            background: #183153;
-            padding: 22px 35px;
-            color: white;
-        }
-
-        .container {
-            max-width: 1100px;
-            margin: 50px auto;
-            padding: 0 20px;
-        }
-
-        .card {
-            background: white;
-            border-radius: 10px;
-            padding: 35px;
-            box-shadow: 0 2px 10px #00000012;
-        }
-
-        h1 { margin-top: 0; }
-
-        .status {
-            background: #e8f5ec;
-            padding: 12px 16px;
-            border-radius: 6px;
-            color: #226b3a;
-            display: inline-block;
-        }
-
-        footer {
-            margin-top: 35px;
-            text-align: center;
-            color: #777;
-            font-size: 13px;
-        }
-    </style>
-</head>
-
-<body>
-
-<header>
-    <h2>eIRv3</h2>
-</header>
-
-<div class="container">
-    <div class="card">
-        <h1>Welcome to eIRv3</h1>
-
-        <p>Application Setup Dashboard</p>
-
-        <div class="status">
-            Laravel application is running
-        </div>
-
-        <hr>
-
-        <h3>System Information</h3>
-
-        <p>Application: eIRv3</p>
-        <p>Status: Initial Setup</p>
-        <p>Environment: {{ app()->environment() }}</p>
-
-        <p>
-            The application modules and user
-            authentication will be configured next.
-        </p>
+@extends('layouts.eirv3')
+@section('title', 'Dashboard')
+@section('content')
+<section class="welcome-banner" aria-labelledby="welcome-title">
+    <div class="welcome-copy"><span class="eyebrow">ELECTRONIC INCIDENT REPORTING SYSTEM</span>
+        <h1 id="welcome-title">Welcome to <span>eIRv3</span></h1>
+        <p>QA/PRSK Module — Hospital Selayang</p>
+        <p class="welcome-description">A secure workspace for patient safety reporting and QATU review.</p>
+        @auth
+            @if(\App\Support\Eirv3Access::canCreate(auth()->user()))
+                <a class="ir-btn ir-btn-orange" href="{{ route('ir.create') }}">+ New Incident Report</a>
+            @endif
+        @else
+            <a class="ir-btn ir-btn-orange" href="{{ route('login') }}">Sign in</a>
+        @endauth
+    </div><div class="welcome-graphic" aria-hidden="true"><div class="graphic-ring"><span>✚</span></div><div class="graphic-wave">⌁</div></div>
+</section>
+<section class="section-block">
+    <div class="section-intro"><div><span class="section-kicker">MODULES</span><h2>eIRv3 workspace</h2></div></div>
+    <div class="module-grid">
+        <article class="module-card"><div class="module-icon">＋</div><h3>Incident Report</h3><p>Submit the Ministry of Health IR 2.0/2017 form.</p>
+            <span class="module-status">Reporter module</span></article>
+        <article class="module-card"><div class="module-icon">☷</div><h3>List of IR</h3><p>View your own IR, or review all IR as QATU.</p>
+            <span class="module-status">Role-based access</span></article>
+        <article class="module-card"><div class="module-icon">▥</div><h3>Reports</h3><p>Weekly and monthly summaries for management.</p>
+            <span class="module-status">KIV</span></article>
+        <article class="module-card"><div class="module-icon">⚙</div><h3>Administration</h3><p>User registration and role assignment.</p>
+            <span class="module-status">Next phase</span></article>
     </div>
-
-    <footer>
-        &copy; {{ date('Y') }} eIRv3
-    </footer>
-</div>
-
-</body>
-</html>
+</section>
+@endsection
