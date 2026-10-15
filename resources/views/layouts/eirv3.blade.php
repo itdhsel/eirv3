@@ -7,6 +7,7 @@
     <title>@yield('title', 'Dashboard') | eIRv3</title>
     <link rel="stylesheet" href="{{ asset('css/eirv3.css') }}">
     <link rel="stylesheet" href="{{ asset('css/eirv3-admin.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/eirv3-dashboard.css') }}">
 </head>
 <body>
 <div class="app-shell">

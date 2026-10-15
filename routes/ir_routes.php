@@ -12,4 +12,9 @@ Route::middleware('auth')->prefix('ir')->name('ir.')->group(function () {
     Route::get('/{incidentReport}/edit', [IncidentReportController::class, 'edit'])->name('edit');
     Route::put('/{incidentReport}', [IncidentReportController::class, 'update'])->name('update');
     Route::post('/{incidentReport}/review', [IncidentReviewController::class, 'store'])->name('review');
+    
+    // New PDF Download Routes for QA
+    Route::get('/{incidentReport}/download-feedback', [IncidentReportController::class, 'downloadFeedback'])->name('download.feedback');
+    Route::get('/{incidentReport}/download-rca', [IncidentReportController::class, 'downloadRca'])->name('download.rca');
+    Route::get('/{incidentReport}/download-completed', [IncidentReportController::class, 'downloadCompleted'])->name('download.completed');
 });

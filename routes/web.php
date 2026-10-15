@@ -1,8 +1,10 @@
+
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Eirv3DashboardController;
 
-Route::view('/', 'dashboard')
+Route::get('/', Eirv3DashboardController::class)
     ->middleware('auth')
     ->name('dashboard');
 

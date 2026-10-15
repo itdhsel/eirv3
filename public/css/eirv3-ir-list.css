@@ -1,0 +1,11 @@
+/* eIRv3 Phase 4: List of IR improvements. Separate stylesheet. */
+.ir-list-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;align-items:end}
+.ir-list-filters label{display:flex;flex-direction:column;gap:.45rem;font-size:.86rem;font-weight:700;color:#293b52}
+.ir-list-filters input,.ir-list-filters select{width:100%;box-sizing:border-box;border:1px solid #bdc9d7;border-radius:8px;background:#fff;color:#172c46;padding:.7rem .75rem;font:inherit;min-height:42px}
+.ir-list-filters input:focus-visible,.ir-list-filters select:focus-visible{outline:2px solid #2a67c6;outline-offset:1px}
+.ir-filter-actions{display:flex;gap:.6rem;flex-wrap:wrap;align-items:end}
+.ir-list-summary{margin:0 0 .7rem;color:#536781;font-size:.87rem;font-weight:700}
+.ir-list-pages{display:flex;gap:1rem;align-items:center;margin-top:1.25rem;font-size:.85rem;color:#61748a}
+.ir-list-pages a{color:#0b5bad;font-weight:700;text-decoration:underline}
+@media(max-width:900px){.ir-list-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.ir-list-filters{grid-template-columns:1fr}}

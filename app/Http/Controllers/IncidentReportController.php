@@ -150,4 +150,28 @@ class IncidentReportController extends Controller
 
         return $data;
     }
+
+    public function downloadFeedback(IncidentReport $incidentReport)
+    {
+        Gate::authorize('manageQaTasks', $incidentReport);
+
+        $pdf = Pdf::loadView('ir.pdf-feedback', ['incident' => $incidentReport]);
+        return $pdf->download('feedback-form-' . $incidentReport->id . '.pdf');
+    }
+
+    public function downloadRca(IncidentReport $incidentReport)
+    {
+        Gate::authorize('manageQaTasks', $incidentReport);
+
+        $pdf = Pdf::loadView('ir.pdf-rca', ['incident' => $incidentReport]);
+        return $pdf->download('rca-form-' . $incidentReport->id . '.pdf');
+    }
+
+    public function downloadCompleted(IncidentReport $incidentReport)
+    {
+        Gate::authorize('manageQaTasks', $incidentReport);
+
+        $pdf = Pdf::loadView('ir.pdf-completed', ['incident' => $incidentReport]);
+        return $pdf->download('completed-ir-report-' . $incidentReport->id . '.pdf');
+    }
 }

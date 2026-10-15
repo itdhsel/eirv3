@@ -2,23 +2,23 @@
 
 namespace Database\Seeders;
 
-use App\Models\Role;
 use Illuminate\Database\Seeder;
+use App\Models\Role; 
 
 class RoleSeeder extends Seeder
 {
     public function run(): void
     {
-        foreach ([
-            ['slug' => 'super_admin', 'name' => 'Super Admin'],
-            ['slug' => 'user', 'name' => 'User'],
-            ['slug' => 'qatu', 'name' => 'QATU'],
-            ['slug' => 'director', 'name' => 'Director'],
-        ] as $role) {
-            Role::updateOrCreate(
-                ['slug' => $role['slug']],
-                ['name' => $role['name']]
-            );
+        $roles = [
+            ['name' => 'Super Administrator', 'slug' => 'superadmin'],
+            ['name' => 'General User', 'slug' => 'user'],
+            ['name' => 'Liaison Officer', 'slug' => 'lo'],
+            ['name' => 'Head of Department', 'slug' => 'hod'],
+            ['name' => 'Quality Assurance', 'slug' => 'qa'],
+        ];
+
+        foreach ($roles as $role) {
+            Role::firstOrCreate(['slug' => $role['slug']], $role);
         }
     }
 }

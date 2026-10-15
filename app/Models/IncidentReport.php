@@ -4,11 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\ModelStates\HasStates;
+use App\States\IncidentState\IncidentState;
 
 class IncidentReport extends Model
 {
+    use HasStates;
+
     protected $fillable = [
-        'reporter_id', 'status', 'reported_at', 'facility_name', 'patient_name',
+        'reporter_id', 'status', 'state', 'reported_at', 'facility_name', 'patient_name',
         'incident_date', 'approximate_incident_date', 'incident_time',
         'approximate_incident_time', 'patient_identifier', 'patient_age',
         'ethnic', 'gender', 'patient_status', 'language_barrier', 'diagnosis',
@@ -24,6 +28,7 @@ class IncidentReport extends Model
     protected function casts(): array
     {
         return [
+            'state' => IncidentState::class,
             'reported_at' => 'date',
             'incident_date' => 'date',
             'approximate_incident_date' => 'date',
@@ -40,6 +45,20 @@ class IncidentReport extends Model
             'immediate_action' => 'encrypted',
             'review_comments' => 'encrypted',
         ];
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'state', 
+                'status', 
+                'actions_taken', 
+                'review_comments', 
+                'reviewer_id'
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     public function reporter(): BelongsTo
