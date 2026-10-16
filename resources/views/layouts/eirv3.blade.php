@@ -22,21 +22,27 @@
             <a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="{{ url('/') }}">
                 <span class="nav-symbol" aria-hidden="true">▦</span> Dashboard
             </a>
+            <a class="nav-link {{ request()->routeIs('ir.create') ? 'active' : '' }}" href="{{ route('ir.create') }}">
+                    <span class="nav-symbol" aria-hidden="true">＋</span> IR Form</a>
+
+
             @auth
-                @if(\App\Support\Eirv3Access::canCreate(auth()->user()))
-                    <a class="nav-link {{ request()->routeIs('ir.create') ? 'active' : '' }}" href="{{ route('ir.create') }}">
-                        <span class="nav-symbol" aria-hidden="true">＋</span> IR Form</a>
-                    <a class="nav-link {{ request()->routeIs('ir.index','ir.show','ir.edit') ? 'active' : '' }}" href="{{ route('ir.index') }}">
-                        <span class="nav-symbol" aria-hidden="true">☷</span> List of IR</a>
-                @endif
-                @if(in_array(\App\Support\Eirv3Access::role(auth()->user()), ['qatu','super_admin'], true))
+                <!-- All authenticated users can submit and view their allowed IRs -->
+                <a class="nav-link {{ request()->routeIs('ir.index','ir.show','ir.edit') ? 'active' : '' }}" href="{{ route('ir.index') }}">
+                    <span class="nav-symbol" aria-hidden="true">☷</span> List of IR</a>
+
+                <!-- KIV Reports (QA & Superadmin) -->
+                @if(in_array(auth()->user()->role->slug ?? '', ['qa', 'superadmin'], true))
                     <div class="nav-link is-coming"><span class="nav-symbol">▥</span> Reports <span class="coming-label">KIV</span></div>
                 @endif
-                @if(in_array(\App\Support\Eirv3Access::role(auth()->user()), ['qatu','super_admin','director'], true))
+
+                <!-- KIV List of Reports (QA, Superadmin, Director) -->
+                @if(in_array(auth()->user()->role->slug ?? '', ['qa', 'superadmin', 'director'], true))
                     <div class="nav-link is-coming"><span class="nav-symbol">≡</span> List of Reports <span class="coming-label">KIV</span></div>
                 @endif
-                @if(\App\Support\Eirv3Access::role(auth()->user()) === 'super_admin')
 
+                <!-- Administration (Superadmin only) -->
+                @if((auth()->user()->role->slug ?? '') === 'superadmin')
                     <a class="nav-link {{ request()->routeIs('admin.*') ? 'active' : '' }}"
                         href="{{ route('admin.users.index') }}">
                             <span class="nav-symbol" aria-hidden="true">⚙</span>
@@ -44,8 +50,7 @@
                     </a>
                 @endif
             @endauth
-        </nav>
-        <div class="sidebar-bottom"><span class="signal-dot" aria-hidden="true"></span><span>QA / PRSK MODULE</span></div>
+        </nav>        <div class="sidebar-bottom"><span class="signal-dot" aria-hidden="true"></span><span>QA / PRSK MODULE</span></div>
     </aside>
     <div class="workspace">
         <header class="topbar">

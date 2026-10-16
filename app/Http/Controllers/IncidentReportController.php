@@ -41,16 +41,20 @@ class IncidentReportController extends Controller
 
     public function create(): View
     {
-        Gate::authorize('create', IncidentReport::class);
+        //Gate::authorize('create', IncidentReport::class);
         return view('ir.form', ['incident' => null, 'departments' => self::DEPARTMENTS]);
     }
 
     public function store(Request $request): RedirectResponse
     {
-        Gate::authorize('create', IncidentReport::class);
+        // Allow anyone (even guests) to create
+        // Gate::authorize('create', IncidentReport::class);
         
         $data = $this->validateReporter($request);
-        $data['reporter_id'] = $request->user()->id;
+        
+        // Use Auth::id() so it safely falls back to null for public guests
+        $data['reporter_id'] = Auth::id(); 
+        
         $data['reported_at'] = now()->toDateString();
         $data['state'] = \App\States\IncidentState\Reported::class;
         $data['status'] = 'submitted';

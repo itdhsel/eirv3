@@ -81,15 +81,21 @@
           <td><span class="ir-status ir-status-{{ $report->status }}">{{ ucfirst($report->status) }}</span></td>
           <td>
             <a href="{{ route('ir.show', $report) }}">
-              {{ $canReview && $report->status === 'submitted' && $report->reporter_id !== auth()->id() ? 'Review' : 'View' }}
+              {{ $canReview && strtolower($report->status) === 'submitted' && $report->reporter_id != auth()->id() ? 'Review' : 'View' }}
             </a>
             
-            @if(auth()->id() === $report->reporter_id && in_array($report->status, ['submitted', 'returned']))
+            <!-- Edit Button for Submitted/Returned -->
+            @if(auth()->id() == $report->reporter_id && in_array(strtolower($report->status), ['submitted', 'returned']))
               <span style="margin: 0 8px; color: #ccc;">|</span>
-              <a href="{{ route('ir.edit', $report) }}">Edit</a>
+              <a href="{{ route('ir.edit', $report) }}" style="color: #ea580c; font-weight: bold;">Edit</a>
             @endif
-          </td>
-        </tr>
+
+            <!-- Send Feedback Button for User and LO -->
+            @if(strtolower($report->status) === 'feedback_required' && (auth()->id() == $report->reporter_id || (auth()->user()->role->slug ?? '') === 'lo'))
+              <span style="margin: 0 8px; color: #ccc;">|</span>
+              <a href="{{ route('ir.show', $report) }}" style="color: #eab308; font-weight: bold;">Send Feedback</a>
+            @endif
+          </td>        </tr>
       @empty
         <tr><td colspan="{{ $canReview ? 8 : 7 }}">No incident reports match these filters.</td></tr>
       @endforelse
