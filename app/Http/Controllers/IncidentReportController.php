@@ -23,15 +23,20 @@ class IncidentReportController extends Controller
     {
         Gate::authorize('viewAny', IncidentReport::class);
 
+        // Determine if the user has review privileges based on the new roles
+        $canReview = in_array(Auth::user()->role->slug ?? 'user', ['superadmin', 'qa', 'hod', 'lo'], true);
+
         $reports = IncidentReport::query()
-            ->when(Auth::user()->role->slug === 'user', fn ($query) =>
+            // Filter reports: if they are not a reviewer, only show their own
+            ->when(! $canReview, fn ($query) =>
                 $query->where('reporter_id', Auth::id())
             )
             ->with('reporter:id,name')
             ->latest('created_at')
             ->paginate(15);
 
-        return view('ir.index', compact('reports'));
+        // Add $canReview to the compact() array so the view can use it
+        return view('ir.index', compact('reports', 'canReview'));
     }
 
     public function create(): View
@@ -99,7 +104,7 @@ class IncidentReportController extends Controller
             Auth::check()
             && Gate::allows('create', IncidentReport::class)
             && $incident->reporter_id === Auth::id()
-            && $incident->status === 'returned',
+            && in_array($incident->status, ['submitted', 'returned'], true),
             403
         );
     }

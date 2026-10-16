@@ -83,6 +83,11 @@
             <a href="{{ route('ir.show', $report) }}">
               {{ $canReview && $report->status === 'submitted' && $report->reporter_id !== auth()->id() ? 'Review' : 'View' }}
             </a>
+            
+            @if(auth()->id() === $report->reporter_id && in_array($report->status, ['submitted', 'returned']))
+              <span style="margin: 0 8px; color: #ccc;">|</span>
+              <a href="{{ route('ir.edit', $report) }}">Edit</a>
+            @endif
           </td>
         </tr>
       @empty
