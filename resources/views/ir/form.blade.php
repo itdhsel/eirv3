@@ -15,12 +15,18 @@
     $designations = ['nurse' => 'Nurse', 'house_officer' => 'House Officer', 'medical_officer' => 'Medical Officer', 'specialist' => 'Specialist', 'pharmacist' => 'Pharmacist', 'other' => 'Others'];
 @endphp
 <section class="ir-intro">
-    <div>
-        <p class="ir-eyebrow">CONFIDENTIAL · MOH IR 2.0/2017</p>
-        <h1>{{ $edit ? 'Resubmit Incident Report' : 'New Incident Report' }}</h1>
-        <p>Patient Safety Incident Reporting Form · Section A: Reporter</p>
+    <div class="dash-workspace-header">
+        <div class="dash-workspace-title">
+            <p class="dash-eyebrow" style="color: var(--orange); margin-bottom: 8px; display: block;">CONFIDENTIAL · MOH IR 2.0/2017</p>
+            <h1>{{ $edit ? 'Resubmit Incident Report' : 'New Incident Report' }}</h1>
+            <p>Patient Safety Incident Reporting Form · Section A: Reporter</p>
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <a href="{{ route('ir.index') }}" class="dash-action-btn-outline" style="height: fit-content;">
+                <span aria-hidden="true">←</span> Back to IR List
+            </a>
+        </div>
     </div>
-    <a class="ir-btn ir-btn-light" href="{{ route('ir.index') }}">Back to IR List</a>
 </section>
 
 @if ($errors->any())

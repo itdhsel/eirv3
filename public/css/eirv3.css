@@ -92,16 +92,16 @@ a { color: inherit; text-decoration: none; }
 .ir-heading-peach>span{background:#ee8b24;color:#132b42}
 .ir-fields{display:grid;gap:1.1rem}
 .ir-fields.ir-two-col{grid-template-columns:repeat(2,minmax(0,1fr))}
-.ir-fields>label,.ir-review-form label{display:block;font-size:.92rem;color:#293b52;font-weight:700}
-.ir-fields label small,.ir-fields legend small{color:#67798c;font-weight:400;font-size:.82rem;display:block;margin:.25rem 0}
-.ir-fields input:not([type=checkbox]):not([type=radio]),.ir-fields select,.ir-fields textarea,.ir-review-form input:not([type=checkbox]):not([type=radio]),.ir-review-form select,.ir-review-form textarea{margin-top:.4rem;display:block;width:100%;max-width:100%;border:1px solid #b8c5d1;border-radius:8px;padding:.7rem .75rem;background:#fff;color:#172c46;outline-offset:2px;font-family:inherit;font-size:.93rem;box-sizing:border-box}
-.ir-fields textarea,.ir-review-form textarea{resize:vertical}
-.ir-fields input:focus,.ir-fields textarea:focus,.ir-fields select:focus,.ir-review-form select:focus{outline:2px solid #2a67c6;border-color:#2a67c6}
-.ir-full{grid-column:1/-1}
-.ir-fields fieldset{border:1px solid #dde5ee;border-radius:10px;padding:1rem;margin:0;min-width:0}
-.ir-fields legend{font-weight:700;color:#243950;padding:0 .35rem}
 .ir-choices{display:flex;gap:1rem;flex-wrap:wrap}.ir-departments{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem}
-.ir-fields label.ir-option{display:inline-flex;flex-direction:row;align-items:center;gap:.4rem;font-size:.85rem;font-weight:500;color:#28405b;cursor:pointer}
+.ir-fields>label, .ir-review-form label { display: block; font-size: 13px; color: var(--navy); font-weight: 700; }
+.ir-fields label small, .ir-fields legend small { color: var(--muted); font-weight: 400; font-size: 12px; display: block; margin: 4px 0; }
+.ir-fields input:not([type=checkbox]):not([type=radio]), .ir-fields select, .ir-fields textarea, .ir-review-form input:not([type=checkbox]):not([type=radio]), .ir-review-form select, .ir-review-form textarea { margin-top: 6px; display: block; width: 100%; max-width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; background: var(--surface); color: var(--ink); font-family: inherit; font-size: 13px; box-sizing: border-box; transition: all 0.2s; }
+.ir-fields textarea, .ir-review-form textarea { resize: vertical; }
+.ir-fields input:focus, .ir-fields textarea:focus, .ir-fields select:focus, .ir-review-form select:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 1px var(--navy); }
+.ir-full { grid-column: 1 / -1; }
+.ir-fields fieldset { border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin: 0; min-width: 0; }
+.ir-fields legend { font-size: 13px; font-weight: 700; color: var(--navy); padding: 0 4px; }
+.ir-fields label.ir-option { display: inline-flex; flex-direction: row; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: var(--ink); cursor: pointer; }
 .ir-option input,.ir-consent input{accent-color:#ee871b}
 .ir-consent{display:flex!important;flex-direction:row!important;align-items:flex-start!important;gap:.7rem!important;font-weight:500!important;line-height:1.5}
 .ir-consent input{margin-top:.32rem}
