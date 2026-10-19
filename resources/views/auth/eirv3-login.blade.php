@@ -12,8 +12,19 @@
     @if($errors->any())<div class="ir-alert ir-alert-error" role="alert">{{ $errors->first() }}</div>@endif
     <form method="POST" action="{{ route('login.store') }}" class="ir-fields">
         @csrf
-        <label>Email address <input type="email" name="email" autocomplete="username" required autofocus value="{{ old('email') }}"></label>
-        <label>Password <input type="password" name="password" autocomplete="current-password" required></label>
+        <div>
+            <label for="nokp">No. KP</label>
+            <input type="text" id="nokp" name="nokp" value="{{ old('nokp') }}" required autofocus>
+            
+            @error('nokp')
+                <span style="color: red;">{{ $message }}</span>
+            @enderror
+        </div>
+
+        <div>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
         <button class="ir-btn ir-btn-orange" type="submit">Sign In</button>
     </form>
     <p class="ir-login-foot">SULIT · Ministry of Health Malaysia</p>

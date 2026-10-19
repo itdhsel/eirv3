@@ -16,7 +16,7 @@
     <div class="dash-hero-content">
         <span class="dash-eyebrow">HOSPITAL SELAYANG · QA/PRSK MODULE</span>
         <h1 id="dash-welcome-title">e-IR <span>System</span></h1>
-        <p>Welcome, {{ auth()->user()->name }}.</p>
+        <p>Welcome, {{ auth()->user()->name }} ({{ auth()->user()->jabatan ?? 'No Jabatan' }}).</p>
         <p class="dash-hero-subtitle">Your {{ $roleNames[$role] ?? ucfirst($role ?? 'Unknown') }} workspace for incident reporting and review.</p>
     </div>
     <div class="dash-hero-mark" aria-hidden="true">✚</div>

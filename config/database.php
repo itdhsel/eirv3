@@ -114,6 +114,20 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
+        'elatihan' => [
+            'driver' => 'mysql',
+            'host' => env('DB_ELATIHAN_HOST', '127.0.0.1'),
+            'port' => env('DB_ELATIHAN_PORT', '3306'),
+            'database' => env('DB_ELATIHAN_DATABASE', 'elatihanv3'),
+            'username' => env('DB_ELATIHAN_USERNAME', 'root'),
+            'password' => env('DB_ELATIHAN_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => null,
+        ],
+
     ],
 
     /*

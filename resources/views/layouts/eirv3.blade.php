@@ -56,8 +56,8 @@
         <header class="topbar">
             <div class="topbar-location">Hospital Selayang <span class="topbar-separator">/</span> eIRv3</div>
             @auth
-                <div class="ir-topbar-user"><span>{{ auth()->user()->name }}</span>
-                    <form method="POST" action="{{ route('logout') }}">@csrf <button type="submit" class="ir-btn ir-btn-light">Log out</button></form>
+            <div class="ir-topbar-user"><span>{{ auth()->user()->name }} | {{ auth()->user()->jabatan ?? 'No Jabatan' }}</span>
+            <form method="POST" action="{{ route('logout') }}">@csrf <button type="submit" class="ir-btn ir-btn-light">Log out</button></form>
                 </div>
             @else
                 <a href="{{ route('login') }}" class="ir-btn ir-btn-orange">Sign in</a>
