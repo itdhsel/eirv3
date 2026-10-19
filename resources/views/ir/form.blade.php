@@ -83,7 +83,12 @@
                     <input type="number" name="patient_age" min="0" max="125" value="{{ old('patient_age', $incident?->patient_age) }}">
                 </label>
                 <label>Ethnic
-                    <input type="text" name="ethnic" maxlength="120" value="{{ old('ethnic', $incident?->ethnic) }}">
+                    <select name="ethnic">
+                        <option value="">Select</option>
+                        @foreach ($ethnics as $ethnicName)
+                            <option value="{{ $ethnicName }}" @selected(old('ethnic', $incident?->ethnic) === $ethnicName)>{{ $ethnicName }}</option>
+                        @endforeach
+                    </select>
                 </label>
                 <label>Gender <span class="ir-required">*</span>
                     <select name="gender" required><option value="">Select</option>
@@ -123,7 +128,6 @@
     <!-- TAB 2: Location & Type -->
     <div id="tab-2" class="ir-tab-pane">
         <section class="ir-panel">
-            <!-- (Keep all your existing Tab 2 fields here) -->
             <div class="ir-panel-heading"><span>02</span><div><h2>Location & incident type</h2><p>Items 5–7 of Section A</p></div></div>
             <div class="ir-fields">
                 <fieldset><legend>5. Type of patient <span class="ir-required">*</span></legend><div class="ir-choices">
@@ -131,33 +135,67 @@
                         <label class="ir-option"><input type="radio" name="patient_type" value="{{ $k }}" @checked(old('patient_type', $incident?->patient_type) === $k) required> {{ $v }}</label>
                     @endforeach
                 </div></fieldset>
-                <label>Other patient type (if selected)
+                <label id="patient-type-other-wrapper" style="display: none;">Other patient type (if selected)
                     <input type="text" name="patient_type_other" maxlength="255" value="{{ old('patient_type_other', $incident?->patient_type_other) }}">
                 </label>
-                <fieldset><legend>Department(s) involved <span class="ir-required">*</span> <small>(select all that apply)</small></legend>
-                    <div class="ir-choices ir-departments">
+                
+                <!-- Updated Department Section: Standard Dropdown -->
+                <label>Department(s) involved <span class="ir-required">*</span>
+                    <select name="departments[]" id="department-select" required>
+                        <option value="">Select Department</option>
                         @foreach ($departments as $department)
-                            <label class="ir-option"><input type="checkbox" name="departments[]" value="{{ $department }}" @checked(in_array($department, $selectedDepartments, true))> {{ $department }}</label>
+                            <option value="{{ $department }}" @selected(in_array($department, $selectedDepartments, true))>{{ $department }}</option>
                         @endforeach
-                    </div>
-                </fieldset>
-                <label>Other department (if selected)
-                    <input type="text" name="departments_other" maxlength="255" value="{{ old('departments_other', $incident?->departments_other) }}">
+                    </select>
                 </label>
+                
+                <!-- Dynamic Other Department Field -->
+                <label id="departments-other-wrapper" style="display: none;">Other department (if selected)
+                    <input type="text" name="departments_other" id="departments_other_input" maxlength="255" value="{{ old('departments_other', $incident?->departments_other) }}">
+                </label>
+                
                 <label>Location / ward / clinic
                     <input type="text" name="location_ward_clinic" maxlength="255" value="{{ old('location_ward_clinic', $incident?->location_ward_clinic) }}">
                 </label>
+                
                 <fieldset><legend>6. Type of incident <span class="ir-required">*</span></legend><div class="ir-choices">
                     @foreach ($incidentTypes as $k => $v)
                         <label class="ir-option"><input type="radio" name="incident_type" value="{{ $k }}" @checked(old('incident_type', $incident?->incident_type) === $k) required> {{ $v }}</label>
                     @endforeach
                 </div></fieldset>
-                <details class="ir-reference"><summary>Examples of reportable incidents from the MOH form</summary>
-                    <p>Wrong surgery/procedure; retained foreign body; transfusion error; medication error (complete MERS form as well); patient fall; obstetric incident; adverse outcome of clinical procedure; ambulance-related incident; radiotherapy incident; suicide/attempt; wrong next-of-kin discharge; assault/battery; unanticipated fire. This list is not exhaustive.</p>
-                </details>
-                <label>Other type of incident (if applicable)
-                    <input type="text" name="other_incident_type" maxlength="255" value="{{ old('other_incident_type', $incident?->other_incident_type) }}">
+                
+                <!-- Updated Examples Section: Dropdown -->
+                @php
+                    $incidentExamples = [
+                        'Wrong surgery/procedure - wrong site, side or patient',
+                        'Unintended retained foreign body in patient after an operation/procedure',
+                        'Error in transfusion of blood/blood products',
+                        'Medication error (please fill in MERS form as well)',
+                        'Patient fall in the facility',
+                        'Obstetric related incidents',
+                        'Adverse outcome of clinical procedure',
+                        'Pre-hospital care and ambulance service related incident',
+                        'Radiotherapy related incident',
+                        'Patient suicide / attempted suicide',
+                        'Patient discharged to wrong family members / next-of-kin',
+                        'Assault/ battery of patient',
+                        'Unanticipated Fire – Fire, flame, or unanticipated smoke, heat, or flashes occurring in the facility',
+                        'Others type of incident'
+                    ];
+                @endphp
+                <label>Examples of incidents that need to be reported <small>(Note that this list is not exhaustive)</small>
+                    <select name="example_incident_type" id="example-incident-select">
+                        <option value="">Select an example (Optional)</option>
+                        @foreach($incidentExamples as $example)
+                            <option value="{{ $example }}">{{ $example }}</option>
+                        @endforeach
+                    </select>
                 </label>
+                
+                <label id="other-incident-type-wrapper" style="display: none;">Other type of incident (if applicable)
+                    <input type="text" name="other_incident_type" id="other_incident_type_input" maxlength="255" value="{{ old('other_incident_type', $incident?->other_incident_type) }}">
+                </label>
+                
                 <label>7. Brief description of what happened <span class="ir-required">*</span>
                     <small>Explain what happened before and during the incident, how it occurred, and relevant contributing information.</small>
                     <textarea name="description" rows="7" required maxlength="20000">{{ old('description', $incident?->description) }}</textarea>
@@ -237,28 +275,76 @@
 </form>
 
 <script>
-    // Tab switching logic
+    // Existing Tab Logic
     function openTab(evt, tabId) {
         document.querySelectorAll('.ir-tab-pane').forEach(pane => pane.classList.remove('active'));
         document.querySelectorAll('.ir-tab-btn').forEach(btn => btn.classList.remove('active'));
-        
         document.getElementById(tabId).classList.add('active');
-        
         if (evt && evt.currentTarget) {
             evt.currentTarget.classList.add('active');
         } else {
             document.querySelector(`.ir-tab-btn[onclick*="${tabId}"]`).classList.add('active');
         }
-        
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Auto-switch to the tab with a validation error
     document.getElementById('ir-form').addEventListener('invalid', function(e) {
         let pane = e.target.closest('.ir-tab-pane');
         if (pane && !pane.classList.contains('active')) {
             openTab(null, pane.id);
         }
     }, true);
+
+    // New Dynamic Visibility Logic
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // 1. Department Toggle
+        const deptSelect = document.getElementById('department-select');
+        const deptOtherWrapper = document.getElementById('departments-other-wrapper');
+        const deptOtherInput = document.getElementById('departments_other_input');
+
+        function toggleDeptOther() {
+            const selectedOptions = Array.from(deptSelect.selectedOptions).map(opt => opt.value);
+            if (selectedOptions.includes('Others')) {
+                deptOtherWrapper.style.display = 'block';
+            } else {
+                deptOtherWrapper.style.display = 'none';
+                deptOtherInput.value = ''; // Clear value if hidden
+            }
+        }
+        deptSelect.addEventListener('change', toggleDeptOther);
+        toggleDeptOther(); // Run on load
+
+        // 2. Incident Example Toggle
+        const exampleSelect = document.getElementById('example-incident-select');
+        const exampleOtherWrapper = document.getElementById('other-incident-type-wrapper');
+        const exampleOtherInput = document.getElementById('other_incident_type_input');
+
+        function toggleExampleOther() {
+            if (exampleSelect.value === 'Others type of incident') {
+                exampleOtherWrapper.style.display = 'block';
+            } else {
+                exampleOtherWrapper.style.display = 'none';
+                exampleOtherInput.value = ''; // Clear value if hidden
+            }
+        }
+        exampleSelect.addEventListener('change', toggleExampleOther);
+        toggleExampleOther(); // Run on load
+        
+        // 3. Patient Type Toggle (Optional, since you had an 'Other patient type' field)
+        const patientTypeRadios = document.querySelectorAll('input[name="patient_type"]');
+        const patientTypeOtherWrapper = document.getElementById('patient-type-other-wrapper');
+        
+        function togglePatientOther() {
+            const selected = document.querySelector('input[name="patient_type"]:checked');
+            if (selected && selected.value === 'other') {
+                patientTypeOtherWrapper.style.display = 'block';
+            } else {
+                patientTypeOtherWrapper.style.display = 'none';
+            }
+        }
+        patientTypeRadios.forEach(radio => radio.addEventListener('change', togglePatientOther));
+        togglePatientOther(); // Run on load
+    });
 </script>
 @endsection

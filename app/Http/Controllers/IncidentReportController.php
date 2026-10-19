@@ -41,8 +41,16 @@ class IncidentReportController extends Controller
 
     public function create(): View
     {
-        //Gate::authorize('create', IncidentReport::class);
-        return view('ir.form', ['incident' => null, 'departments' => self::DEPARTMENTS]);
+        // Fetch ethnics ordered by their ID so they match the exact grouping from your seeder
+        $ethnics = \App\Models\Ethnic::orderBy('id')->pluck('name');
+        return view('ir.form', ['incident' => null, 'departments' => self::DEPARTMENTS, 'ethnics' => $ethnics]);
+    }
+
+    public function edit(IncidentReport $incidentReport): View
+    {
+        $this->checkEditable($incidentReport);
+        $ethnics = \App\Models\Ethnic::orderBy('id')->pluck('name');
+        return view('ir.form', ['incident' => $incidentReport, 'departments' => self::DEPARTMENTS, 'ethnics' => $ethnics]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -73,12 +81,6 @@ class IncidentReportController extends Controller
         $incidentReport->load('reporter:id,name', 'reviewer:id,name');
 
         return view('ir.show', ['incident' => $incidentReport]);
-    }
-
-    public function edit(IncidentReport $incidentReport): View
-    {
-        $this->checkEditable($incidentReport);
-        return view('ir.form', ['incident' => $incidentReport, 'departments' => self::DEPARTMENTS]);
     }
 
     public function update(Request $request, IncidentReport $incidentReport): RedirectResponse
@@ -144,6 +146,7 @@ class IncidentReportController extends Controller
             'reporter_designation_other' => ['nullable', 'required_if:reporter_designation,other', 'string', 'max:255'],
             'reporter_name' => ['required', 'string', 'max:255'],
             'reporter_attested' => ['accepted'],
+            'example_incident_type' => ['nullable', 'string', 'max:500'],
         ]);
 
         if (in_array('Others', $data['departments'], true)
