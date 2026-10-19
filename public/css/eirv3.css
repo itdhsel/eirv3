@@ -39,7 +39,7 @@ a { color: inherit; text-decoration: none; }
 .topbar-location { font-size: 13px; font-weight: 700; }
 .topbar-separator { margin: 0 7px; color: #9aa8bc; }
 .topbar-badge { font-size: 10px; font-weight: 800; letter-spacing: .06em; color: #2f4383; background: #eaf0ff; border-radius: 20px; padding: 9px 12px; }
-.main-content { max-width: 1500px; width: 100%; padding: 36px 42px 45px; margin: 0 auto; flex: 1; }
+.main-content { width: 100%; padding: 36px 42px 45px; flex: 1; }
 .welcome-banner { background: linear-gradient(110deg, #061326 10%, #0d2948 75%, #164166 100%); color: #ffffff; padding: 38px 43px; border-radius: var(--radius); display: flex; justify-content: space-between; align-items: center; gap: 25px; overflow: hidden; position: relative; box-shadow: 0 10px 25px rgba(7, 21, 40, .09); }
 .welcome-banner:after { content: ""; position: absolute; height: 330px; width: 330px; border: 1px solid rgba(245,138,32,.14); border-radius: 50%; right: -85px; top: -85px; box-shadow: 0 0 0 45px rgba(245,138,32,.04), 0 0 0 90px rgba(245,138,32,.025); }
 .welcome-copy { z-index: 1; max-width: 630px; }
@@ -127,3 +127,39 @@ a { color: inherit; text-decoration: none; }
 @media(max-width:480px){.ir-departments{grid-template-columns:1fr}}
 .ir-topbar-user{display:flex;align-items:center;gap:.7rem;font-size:.85rem;color:#354d66}
 .ir-topbar-user form{margin:0}.ir-topbar-user .ir-btn{min-height:34px;padding:.35rem .65rem}
+
+/* Sidebar Shrink Styles */
+.sidebar { 
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    white-space: nowrap; 
+    overflow-x: hidden; 
+}
+.sidebar.collapsed { 
+    width: 76px; 
+    padding-left: 12px; 
+    padding-right: 12px; 
+}
+.sidebar.collapsed .brand { 
+    padding: 0 0 12px; 
+    align-items: center; 
+}
+.sidebar.collapsed .brand-version, 
+.sidebar.collapsed .brand-subtitle, 
+.sidebar.collapsed .nav-heading, 
+.sidebar.collapsed .coming-label,
+.sidebar.collapsed .nav-text,
+.sidebar.collapsed .sidebar-bottom > span:last-child { 
+    display: none; 
+}
+.sidebar.collapsed .nav-link { 
+    justify-content: center; 
+    padding: 13px 0; 
+}
+.sidebar.collapsed .nav-symbol { 
+    width: auto; 
+    font-size: 22px; 
+}
+.sidebar.collapsed .sidebar-bottom { 
+    justify-content: center; 
+    padding: 28px 0 0; 
+}

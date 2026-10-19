@@ -12,114 +12,125 @@
     ];
 @endphp
 
-<section class="dash-hero" aria-labelledby="dash-welcome-title">
-    <div class="dash-hero-content">
-        <span class="dash-eyebrow">HOSPITAL SELAYANG · QA/PRSK MODULE</span>
-        <h1 id="dash-welcome-title">e-IR <span>System</span></h1>
-        <p>Welcome, {{ auth()->user()->name }} ({{ auth()->user()->jabatan ?? 'No Jabatan' }}).</p>
-        <p class="dash-hero-subtitle">Your {{ $roleNames[$role] ?? ucfirst($role ?? 'Unknown') }} workspace for incident reporting and review.</p>
+<div class="dash-workspace-header">
+    <div class="dash-workspace-title">
+        <h1>Incidents Hub</h1>
+        <p>Manage incident reporting, investigation readiness, and executive visibility from one operational module. You are logged in as <strong>{{ $roleNames[$role] ?? ucfirst($role ?? 'Unknown') }}</strong>.</p>
     </div>
-    <div class="dash-hero-mark" aria-hidden="true">✚</div>
-</section>
+    <div style="display: flex; gap: 12px;">
+        @if ($role === 'superadmin')
+            <a href="{{ route('admin.users.index') }}" class="ir-btn ir-btn-light" style="display: flex; align-items: center; gap: 8px;">
+                <span aria-hidden="true">⚙</span> User Management
+            </a>
+        @endif
+        <a href="{{ route('ir.create') }}" class="ir-btn ir-btn-orange" style="display: flex; align-items: center; gap: 8px;">
+            <span aria-hidden="true">＋</span> New Incident
+        </a>
+    </div>
+</div>
 
 @if ($role === 'director')
-    <section class="dash-section" aria-labelledby="director-heading">
-        <div class="dash-section-heading">
-            <div><span class="dash-section-label">DIRECTOR WORKSPACE</span>
-                <h2 id="director-heading">Reports for Director Review</h2>
-            </div>
-        </div>
-        <div class="dash-empty-panel">
-            <div class="dash-empty-icon" aria-hidden="true">▥</div>
-            <h3>Reporting module is coming next</h3>
-            <p>The weekly/monthly report module and Director's review list are currently KIV. Individual incident reports and incident statistics are not available to the Director role.</p>
-        </div>
-    </section>
+    <div class="dash-table-section" style="text-align: center; padding: 60px 20px;">
+        <h2 style="font-size: 20px; color: var(--navy); margin-bottom: 8px;">Reporting module is coming next</h2>
+        <p style="color: var(--muted); max-width: 500px; margin: 0 auto;">The weekly/monthly report module and Director's review list are currently KIV. Individual incident reports and incident statistics are not available to the Director role.</p>
+    </div>
 @else
-    <section class="dash-section" aria-labelledby="stats-heading">
-        <div class="dash-section-heading">
-            <div><span class="dash-section-label">INCIDENT REPORTING OVERVIEW</span>
-                <h2 id="stats-heading">{{ $role === 'user' ? 'My incident reports' : 'Incident report overview' }}</h2>
+    <!-- Metric Cards Row -->
+    <div class="dash-metric-grid">
+        <div class="dash-metric-card blue-top">
+            <span class="dash-metric-title">{{ $role === 'user' ? 'My Total IR' : 'Total IR' }}</span>
+            <span class="dash-metric-value">{{ number_format($stats['total']) }}</span>
+            <span class="dash-metric-desc">Total records visible to your role across the system.</span>
+        </div>
+        
+        <div class="dash-metric-card orange-top">
+            <span class="dash-metric-title">{{ $isReviewer ? 'Pending Your Review' : 'Awaiting QATU' }}</span>
+            <span class="dash-metric-value">{{ number_format($stats['pending']) }}</span>
+            <span class="dash-metric-desc">{{ $isReviewer ? 'Excludes your own submissions.' : 'Your submitted reports awaiting review.' }}</span>
+        </div>
+        
+        <div class="dash-metric-card green-top">
+            <span class="dash-metric-title">Approved IR</span>
+            <span class="dash-metric-value">{{ number_format($stats['approved']) }}</span>
+            <span class="dash-metric-desc">Records successfully moved through the closure workflow.</span>
+        </div>
+        
+        <div class="dash-metric-card gray-top">
+            <span class="dash-metric-title">Returned IR</span>
+            <span class="dash-metric-value">{{ number_format($stats['returned']) }}</span>
+            <span class="dash-metric-desc">Records requiring correction or active follow-up.</span>
+        </div>
+    </div>
+
+    <!-- Data Table Row -->
+    <div class="dash-table-section">
+        <div class="dash-table-header">
+            <div>
+                <h2>Incident Register</h2>
+                <p>Operational view of incident records, type, reporting details, and status.</p>
             </div>
-            <span class="dash-role-tag">{{ $roleNames[$role] ?? ucfirst($role ?? '') }}</span>
+            <a href="{{ route('ir.index') }}" style="font-size: 13px; color: var(--navy); font-weight: 700; text-decoration: none;">View All Incidents →</a>
         </div>
-
-        <div class="dash-stat-grid">
-            <article class="dash-stat-card">
-                <div class="dash-stat-symbol" aria-hidden="true">▤</div>
-                <span class="dash-stat-title">{{ $role === 'user' ? 'My Total IR' : 'Total IR' }}</span>
-                <strong class="dash-stat-number">{{ number_format($stats['total']) }}</strong>
-                <span class="dash-stat-footer">Visible to your role</span>
-            </article>
-            <article class="dash-stat-card dash-stat-card-orange">
-                <div class="dash-stat-symbol" aria-hidden="true">◷</div>
-                <span class="dash-stat-title">{{ $isReviewer ? 'Pending Your Review' : 'Awaiting QATU' }}</span>
-                <strong class="dash-stat-number">{{ number_format($stats['pending']) }}</strong>
-                <span class="dash-stat-footer">{{ $isReviewer ? 'Excludes your own submissions' : 'Your submitted reports' }}</span>
-            </article>
-            <article class="dash-stat-card">
-                <div class="dash-stat-symbol" aria-hidden="true">✓</div>
-                <span class="dash-stat-title">Approved IR</span>
-                <strong class="dash-stat-number">{{ number_format($stats['approved']) }}</strong>
-                <span class="dash-stat-footer">Approved by QATU</span>
-            </article>
-            <article class="dash-stat-card">
-                <div class="dash-stat-symbol" aria-hidden="true">↶</div>
-                <span class="dash-stat-title">Returned IR</span>
-                <strong class="dash-stat-number">{{ number_format($stats['returned']) }}</strong>
-                <span class="dash-stat-footer">Requires reporter correction</span>
-            </article>
-        </div>
-    </section>
-
-    <section class="dash-section" aria-labelledby="quicklinks-heading">
-        <div class="dash-section-heading">
-            <div><span class="dash-section-label">QUICK ACTIONS</span><h2 id="quicklinks-heading">Workspace shortcuts</h2></div>
-        </div>
-        <div class="dash-actions">
-            <a href="{{ route('ir.create') }}" class="dash-action dash-action-primary"><span aria-hidden="true">＋</span><span>New Incident Report</span></a>
-            <a href="{{ route('ir.index') }}" class="dash-action"><span aria-hidden="true">☷</span><span>List of IR</span></a>
-            @if ($role === 'superadmin')
-                <a href="{{ route('admin.users.index') }}" class="dash-action"><span aria-hidden="true">⚙</span><span>User Management</span></a>
-            @endif
-            @if ($role === 'qa')
-                <span class="dash-action dash-action-disabled" aria-label="Weekly and monthly reports: coming soon"><span aria-hidden="true">▥</span><span>Reports (KIV)</span></span>
-            @endif
-        </div>
-    </section>
-
-    <section class="dash-section" aria-labelledby="recent-heading">
-        <div class="dash-section-heading">
-            <div><span class="dash-section-label">RECENT ACTIVITY</span>
-                <h2 id="recent-heading">{{ $role === 'user' ? 'My recent submissions' : 'Recent incident reports' }}</h2>
+        
+        @if ($recentReports->isEmpty())
+            <div style="text-align: center; padding: 40px 20px; color: var(--muted);">
+                <p>No incident reports available to display.</p>
             </div>
-            <a class="dash-text-link" href="{{ route('ir.index') }}">View all IR →</a>
-        </div>
-        <div class="dash-recent-panel">
-            @if ($recentReports->isEmpty())
-                <div class="dash-empty-panel dash-empty-compact">
-                    <h3>No incident reports yet</h3>
-                    <p>Submitted incident reports will appear here when available to your role.</p>
-                </div>
-            @else
-                <div class="dash-table-scroll">
-                    <table class="dash-table">
-                        <thead><tr><th scope="col">IR Reference</th><th scope="col">Submitted</th><th scope="col">Type</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead>
-                        <tbody>
+        @else
+            <div style="overflow-x: auto;">
+                <table class="dash-ui-table">
+                    <thead>
+                        <tr>
+                            <th>Incident</th>
+                            <th>Type</th>
+                            <th>Reported By</th>
+                            <th>Occurred</th>
+                            <th>Status</th>
+                            <th style="text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
                         @foreach ($recentReports as $report)
                             <tr>
-                                <td><strong>#{{ str_pad((string) $report->id, 6, '0', STR_PAD_LEFT) }}</strong></td>
-                                <td>{{ $report->reported_at?->format('d M Y') ?? '—' }}</td>
-                                <td>{{ $report->incident_type === 'near_miss' ? 'Near Miss' : 'Actual' }}</td>
-                                <td><span class="dash-status dash-status-{{ $report->status }}">{{ ucfirst($report->status) }}</span></td>
-                                <td><a href="{{ route('ir.show', $report) }}">{{ $isReviewer && $report->status === 'submitted' && $report->reporter_id !== auth()->id() ? 'Review' : 'View' }}</a></td>
+                                <td>
+                                    <strong style="color: var(--navy);">#{{ str_pad((string) $report->id, 6, '0', STR_PAD_LEFT) }}</strong>
+                                    <div style="font-size: 12px; color: var(--muted); margin-top: 4px; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        {{ $report->location_ward_clinic ?? 'Facility Area' }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span style="font-weight: 700;">{{ $report->incident_type === 'near_miss' ? 'Near Miss' : 'Actual Incident' }}</span>
+                                    <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">{{ $report->patient_outcome ? ucfirst($report->patient_outcome) : 'No Outcome' }}</div>
+                                </td>
+                                <td>
+                                    <span style="font-weight: 700;">{{ $report->reporter_name ?? 'Unknown' }}</span>
+                                    <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">{{ $report->reported_at?->format('Y-m-d') ?? '—' }}</div>
+                                </td>
+                                <td>
+                                    <span style="font-weight: 700;">{{ ($report->incident_date ?? $report->approximate_incident_date)?->format('Y-m-d') ?? '—' }}</span>
+                                    <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">{{ $report->incident_time ?? $report->approximate_incident_time ?? '—' }}</div>
+                                </td>
+                                <td>
+                                    @php
+                                        $badgeClass = 'dash-badge-gray';
+                                        if (strtolower($report->status) === 'submitted' || strtolower($report->status) === 'feedback_required') $badgeClass = 'dash-badge-submitted';
+                                        if (strtolower($report->status) === 'approved') $badgeClass = 'dash-badge-approved';
+                                        if (strtolower($report->status) === 'returned' || strtolower($report->status) === 'rca_required') $badgeClass = 'dash-badge-returned';
+                                    @endphp
+                                    <span class="dash-badge {{ $badgeClass }}">{{ ucwords(str_replace('_', ' ', $report->status)) }}</span>
+                                </td>
+                                <td style="text-align: right;">
+                                    <a href="{{ route('ir.show', $report) }}" class="dash-action-btn-outline">
+                                        <span aria-hidden="true">👁</span>
+                                        {{ $isReviewer && $report->status === 'submitted' && $report->reporter_id !== auth()->id() ? 'Review' : 'Open' }}
+                                    </a>
+                                </td>
                             </tr>
                         @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @endif
-        </div>
-    </section>
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </div>
 @endif
 @endsection
