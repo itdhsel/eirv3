@@ -92,9 +92,9 @@ a { color: inherit; text-decoration: none; }
 .ir-heading-peach>span{background:#ee8b24;color:#132b42}
 .ir-fields{display:grid;gap:1.1rem}
 .ir-fields.ir-two-col{grid-template-columns:repeat(2,minmax(0,1fr))}
-.ir-fields>label,.ir-review-form label{display:flex;flex-direction:column;gap:.4rem;font-size:.92rem;color:#293b52;font-weight:700}
+.ir-fields>label,.ir-review-form label{display:block;font-size:.92rem;color:#293b52;font-weight:700}
 .ir-fields label small,.ir-fields legend small{color:#67798c;font-weight:400;font-size:.82rem;display:block;margin:.25rem 0}
-.ir-fields input:not([type=checkbox]):not([type=radio]),.ir-fields select,.ir-fields textarea,.ir-review-form input:not([type=checkbox]):not([type=radio]),.ir-review-form select,.ir-review-form textarea{width:100%;max-width:100%;border:1px solid #b8c5d1;border-radius:8px;padding:.7rem .75rem;background:#fff;color:#172c46;outline-offset:2px;font-family:inherit;font-size:.93rem;box-sizing:border-box}
+.ir-fields input:not([type=checkbox]):not([type=radio]),.ir-fields select,.ir-fields textarea,.ir-review-form input:not([type=checkbox]):not([type=radio]),.ir-review-form select,.ir-review-form textarea{margin-top:.4rem;display:block;width:100%;max-width:100%;border:1px solid #b8c5d1;border-radius:8px;padding:.7rem .75rem;background:#fff;color:#172c46;outline-offset:2px;font-family:inherit;font-size:.93rem;box-sizing:border-box}
 .ir-fields textarea,.ir-review-form textarea{resize:vertical}
 .ir-fields input:focus,.ir-fields textarea:focus,.ir-fields select:focus,.ir-review-form select:focus{outline:2px solid #2a67c6;border-color:#2a67c6}
 .ir-full{grid-column:1/-1}
@@ -163,3 +163,16 @@ a { color: inherit; text-decoration: none; }
     justify-content: center; 
     padding: 28px 0 0; 
 }
+
+/* eIRv3 Form Tabs */
+.ir-tab-nav { display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 2px solid var(--border); padding-bottom: 12px; overflow-x: auto; scrollbar-width: none; }
+.ir-tab-nav::-webkit-scrollbar { display: none; }
+.ir-tab-btn { background: var(--surface); border: 1px solid var(--border); padding: 10px 24px; font-size: 14px; font-weight: 700; color: var(--muted); cursor: pointer; border-radius: 8px; transition: all 0.2s ease; white-space: nowrap; }
+.ir-tab-btn:hover { background: var(--background); color: var(--navy); border-color: var(--navy); }
+.ir-tab-btn.active { background: var(--navy); color: #ffffff; border-color: var(--navy); box-shadow: 0 4px 12px rgba(7, 21, 40, 0.15); }
+
+.ir-tab-pane { display: none; }
+.ir-tab-pane.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+.ir-tab-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
