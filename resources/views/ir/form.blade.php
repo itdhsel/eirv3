@@ -15,14 +15,14 @@
     $designations = ['nurse' => 'Nurse', 'house_officer' => 'House Officer', 'medical_officer' => 'Medical Officer', 'specialist' => 'Specialist', 'pharmacist' => 'Pharmacist', 'other' => 'Others'];
 @endphp
 <section class="ir-intro">
-    <div class="dash-workspace-header">
+    <div class="dash-workspace-header" style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
         <div class="dash-workspace-title">
             <p class="dash-eyebrow" style="color: var(--orange); margin-bottom: 8px; display: block;">CONFIDENTIAL · MOH IR 2.0/2017</p>
-            <h1>{{ $edit ? 'Resubmit Incident Report' : 'New Incident Report' }}</h1>
-            <p>Patient Safety Incident Reporting Form · Section A: Reporter</p>
+            <h1 style="margin: 0 0 8px 0; color: var(--navy);">{{ $edit ? 'Resubmit Incident Report' : 'New Incident Report' }}</h1>
+            <p style="margin: 0; color: var(--muted);">Patient Safety Incident Reporting Form · Section A: Reporter</p>
         </div>
-        <div style="display: flex; gap: 12px;">
-            <a href="{{ route('ir.index') }}" class="dash-action-btn-outline" style="height: fit-content;">
+        <div style="margin-left: auto;">
+            <a href="{{ route('ir.index') }}" class="ir-btn ir-btn-light">
                 <span aria-hidden="true">←</span> Back to IR List
             </a>
         </div>
@@ -44,18 +44,19 @@
     @csrf
     @if ($edit) @method('PUT') @endif
 
-    <!-- TAB NAVIGATION -->
-    <div class="ir-tab-nav">
-        <button type="button" class="ir-tab-btn active" onclick="openTab(event, 'tab-1')">1. Incident Description</button>
-        <button type="button" class="ir-tab-btn" onclick="openTab(event, 'tab-2')">2. Location & Type</button>
-        <button type="button" class="ir-tab-btn" onclick="openTab(event, 'tab-3')">3. Outcome & Action</button>
-        <button type="button" class="ir-tab-btn" onclick="openTab(event, 'tab-4')">4. Reporter Details</button>
+<!-- TAB NAVIGATION -->
+<div class="ir-tab-nav">
+        <button type="button" class="ir-tab-btn active" onclick="openTab(event, 'tab-1')">01. Incident Description</button>
+        <button type="button" class="ir-tab-btn" onclick="openTab(event, 'tab-2')">02. Location & Type</button>
+        <button type="button" class="ir-tab-btn" onclick="openTab(event, 'tab-3')">03. Outcome & Action</button>
+        <button type="button" class="ir-tab-btn" onclick="openTab(event, 'tab-4')">04. Reporter Details</button>
     </div>
 
     <!-- TAB 1: Incident Description -->
     <div id="tab-1" class="ir-tab-pane active">
         <section class="ir-panel">
-            <div class="ir-panel-heading"><span>1</span><div><h2>Incident description</h2><p>Items 1–4 of Section A</p></div></div>
+            <!-- (Keep all your existing Tab 1 fields here) -->
+            <div class="ir-panel-heading"><span>01</span><div><h2>Incident description</h2><p>Items 1–4 of Section A</p></div></div>
             <div class="ir-fields ir-two-col">
                 <label>1. Name of facility / institution <span class="ir-required">*</span>
                     <input type="text" name="facility_name" maxlength="255" required value="{{ old('facility_name', $incident?->facility_name ?? 'Hospital Selayang') }}">
@@ -87,21 +88,21 @@
                 <label>Gender <span class="ir-required">*</span>
                     <select name="gender" required><option value="">Select</option>
                         @foreach ($genders as $k => $v)
-                            <option value="{{ $k }}" @selected(old('gender', $incident?->gender) === $k)>{{$v }}</option>
+                            <option value="{{ $k }}" @selected(old('gender', $incident?->gender) === $k)>{{ $v }}</option>
                         @endforeach
                     </select>
                 </label>
                 <label>Patient status <span class="ir-required">*</span>
                     <select name="patient_status" required><option value="">Select</option>
                         @foreach ($statuses as $k => $v)
-                            <option value="{{ $k }}" @selected(old('patient_status', $incident?->patient_status) === $k)>{{$v }}</option>
+                            <option value="{{ $k }}" @selected(old('patient_status', $incident?->patient_status) === $k)>{{ $v }}</option>
                         @endforeach
                     </select>
                 </label>
                 <label>Language barrier <span class="ir-required">*</span>
                     <select name="language_barrier" required><option value="">Select</option>
                         @foreach ($barriers as $k => $v)
-                            <option value="{{ $k }}" @selected(old('language_barrier', $incident?->language_barrier) === $k)>{{$v }}</option>
+                            <option value="{{ $k }}" @selected(old('language_barrier', $incident?->language_barrier) === $k)>{{ $v }}</option>
                         @endforeach
                     </select>
                 </label>
@@ -112,18 +113,22 @@
         </section>
         <div class="ir-tab-actions">
             <div></div>
-            <button type="button" class="ir-btn ir-btn-light" onclick="openTab(null, 'tab-2')">Next: Location & Type &rarr;</button>
+            <div style="display: flex; gap: 12px;">
+                <button type="submit" name="action" value="draft" formnovalidate class="ir-btn" style="background: white; border: 1px solid var(--muted); color: var(--muted);">Save Draft</button>
+                <button type="button" class="ir-btn ir-btn-light" onclick="openTab(null, 'tab-2')">Next: Location & Type &rarr;</button>
+            </div>
         </div>
     </div>
 
     <!-- TAB 2: Location & Type -->
     <div id="tab-2" class="ir-tab-pane">
         <section class="ir-panel">
-            <div class="ir-panel-heading"><span>2</span><div><h2>Location & incident type</h2><p>Items 5–7 of Section A</p></div></div>
+            <!-- (Keep all your existing Tab 2 fields here) -->
+            <div class="ir-panel-heading"><span>02</span><div><h2>Location & incident type</h2><p>Items 5–7 of Section A</p></div></div>
             <div class="ir-fields">
                 <fieldset><legend>5. Type of patient <span class="ir-required">*</span></legend><div class="ir-choices">
                     @foreach ($patientTypes as $k => $v)
-                        <label class="ir-option"><input type="radio" name="patient_type" value="{{ $k }}" @checked(old('patient_type', $incident?->patient_type) === $k) required> {{$v }}</label>
+                        <label class="ir-option"><input type="radio" name="patient_type" value="{{ $k }}" @checked(old('patient_type', $incident?->patient_type) === $k) required> {{ $v }}</label>
                     @endforeach
                 </div></fieldset>
                 <label>Other patient type (if selected)
@@ -132,7 +137,7 @@
                 <fieldset><legend>Department(s) involved <span class="ir-required">*</span> <small>(select all that apply)</small></legend>
                     <div class="ir-choices ir-departments">
                         @foreach ($departments as $department)
-                            <label class="ir-option"><input type="checkbox" name="departments[]" value="{{ $department }}" @checked(in_array($department, $selectedDepartments, true))> {{$department }}</label>
+                            <label class="ir-option"><input type="checkbox" name="departments[]" value="{{ $department }}" @checked(in_array($department, $selectedDepartments, true))> {{ $department }}</label>
                         @endforeach
                     </div>
                 </fieldset>
@@ -144,7 +149,7 @@
                 </label>
                 <fieldset><legend>6. Type of incident <span class="ir-required">*</span></legend><div class="ir-choices">
                     @foreach ($incidentTypes as $k => $v)
-                        <label class="ir-option"><input type="radio" name="incident_type" value="{{ $k }}" @checked(old('incident_type', $incident?->incident_type) === $k) required> {{$v }}</label>
+                        <label class="ir-option"><input type="radio" name="incident_type" value="{{ $k }}" @checked(old('incident_type', $incident?->incident_type) === $k) required> {{ $v }}</label>
                     @endforeach
                 </div></fieldset>
                 <details class="ir-reference"><summary>Examples of reportable incidents from the MOH form</summary>
@@ -161,19 +166,23 @@
         </section>
         <div class="ir-tab-actions">
             <button type="button" class="ir-btn ir-btn-light" onclick="openTab(null, 'tab-1')">&larr; Previous</button>
-            <button type="button" class="ir-btn ir-btn-light" onclick="openTab(null, 'tab-3')">Next: Outcome & Action &rarr;</button>
+            <div style="display: flex; gap: 12px;">
+                <button type="submit" name="action" value="draft" formnovalidate class="ir-btn" style="background: white; border: 1px solid var(--muted); color: var(--muted);">Save Draft</button>
+                <button type="button" class="ir-btn ir-btn-light" onclick="openTab(null, 'tab-3')">Next: Outcome & Action &rarr;</button>
+            </div>
         </div>
     </div>
 
     <!-- TAB 3: Outcome & Action -->
     <div id="tab-3" class="ir-tab-pane">
         <section class="ir-panel" id="actual-only">
-            <div class="ir-panel-heading"><span>3</span><div><h2>Patient outcome & immediate action</h2><p>Items 8–9 · Complete only for an actual incident</p></div></div>
+            <!-- (Keep all your existing Tab 3 fields here) -->
+            <div class="ir-panel-heading"><span>03</span><div><h2>Patient outcome & immediate action</h2><p>Items 8–9 · Complete only for an actual incident</p></div></div>
             <div class="ir-fields">
                 <label>8. Outcome of incident
                     <select name="patient_outcome"><option value="">Select for actual incident</option>
                         @foreach ($outcomes as $k => $v)
-                            <option value="{{ $k }}" @selected(old('patient_outcome', $incident?->patient_outcome) === $k)>{{$v }}</option>
+                            <option value="{{ $k }}" @selected(old('patient_outcome', $incident?->patient_outcome) === $k)>{{ $v }}</option>
                         @endforeach
                     </select>
                 </label>
@@ -185,19 +194,23 @@
         </section>
         <div class="ir-tab-actions">
             <button type="button" class="ir-btn ir-btn-light" onclick="openTab(null, 'tab-2')">&larr; Previous</button>
-            <button type="button" class="ir-btn ir-btn-light" onclick="openTab(null, 'tab-4')">Next: Reporter Details &rarr;</button>
+            <div style="display: flex; gap: 12px;">
+                <button type="submit" name="action" value="draft" formnovalidate class="ir-btn" style="background: white; border: 1px solid var(--muted); color: var(--muted);">Save Draft</button>
+                <button type="button" class="ir-btn ir-btn-light" onclick="openTab(null, 'tab-4')">Next: Reporter Details &rarr;</button>
+            </div>
         </div>
     </div>
 
     <!-- TAB 4: Reporter Details & Submit -->
     <div id="tab-4" class="ir-tab-pane">
         <section class="ir-panel">
-            <div class="ir-panel-heading"><span>4</span><div><h2>Reported by</h2><p>Item 10 · Reporter declaration</p></div></div>
+            <!-- (Keep all your existing Tab 4 fields here) -->
+            <div class="ir-panel-heading"><span>04</span><div><h2>Reported by</h2><p>Item 10 · Reporter declaration</p></div></div>
             <div class="ir-fields ir-two-col">
                 <label>Designation <span class="ir-required">*</span>
                     <select name="reporter_designation" required><option value="">Select</option>
                         @foreach ($designations as $k => $v)
-                            <option value="{{ $k }}" @selected(old('reporter_designation', $incident?->reporter_designation) === $k)>{{$v }}</option>
+                            <option value="{{ $k }}" @selected(old('reporter_designation', $incident?->reporter_designation) === $k)>{{ $v }}</option>
                         @endforeach
                     </select>
                 </label>
@@ -215,9 +228,9 @@
         
         <div class="ir-tab-actions">
             <button type="button" class="ir-btn ir-btn-light" onclick="openTab(null, 'tab-3')">&larr; Previous</button>
-            <div style="display: flex; gap: 0.7rem;">
-                <a href="{{ route('ir.index') }}" class="ir-btn ir-btn-light">Cancel</a>
-                <button type="submit" class="ir-btn ir-btn-orange">{{ $edit ? 'Resubmit to QATU' : 'Submit IR to QATU' }}</button>
+            <div style="display: flex; gap: 12px;">
+                <button type="submit" name="action" value="draft" formnovalidate class="ir-btn" style="background: white; border: 1px solid var(--muted); color: var(--muted);">Save Draft</button>
+                <button type="submit" name="action" value="submit" class="ir-btn ir-btn-orange">{{ $edit ? 'Resubmit to QATU' : 'Submit IR to QATU' }}</button>
             </div>
         </div>
     </div>
