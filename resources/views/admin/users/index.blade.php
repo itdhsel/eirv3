@@ -17,12 +17,12 @@
 <section class="ir-panel">
     <div class="ir-table-wrap">
         <table class="ir-table">
-            <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Action</th></tr></thead>
+            <thead><tr><th>Name</th><th>DEPARTMENT</th><th>Role</th><th>Action</th></tr></thead>
             <tbody>
             @forelse ($users as $user)
                 <tr>
                     <td>{{ $user->name }}</td>
-                    <td>{{ $user->email }}</td>
+                    <td>{{ $user->jabatan ?? '-' }}</td>
                     <td><span class="admin-role-pill">{{ $roleNames[$user->role_id] ?? 'Not assigned' }}</span></td>
                     <td><a href="{{ route('admin.users.edit', $user) }}">Edit user</a></td>
                 </tr>
