@@ -14,8 +14,9 @@
     <aside class="sidebar" id="app-sidebar" aria-label="Main navigation">
         <div class="ir-sidebar-brand">
             <a href="{{ route('dashboard') }}" class="ir-logo-text" style="text-decoration: none;">
-                eIRv3
-                <span style="display: block; font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 6px;">Incident Report</span>
+                <span class="logo-full">eIRv3</span>
+                <span class="logo-short" style="display: none; font-size: 28px; color: var(--brand-primary); font-weight: 800;">eIR</span>
+                <span class="logo-sub" style="display: block; font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 6px;">Incident Report</span>
             </a>
         </div>
         <div class="sidebar-rule"></div>
@@ -60,9 +61,9 @@
     <div class="workspace">
         <header class="topbar">
             <div style="display: flex; align-items: center; gap: 16px;">
-            <button id="sidebar-toggle" style="background: none; border: none; font-size: 1.4rem; color: var(--brand-dark); cursor: pointer; padding: 0;">
-    ☰
-</button>
+            <button id="sidebar-toggle" onclick="toggleSidebar()" style="background: none; border: none; font-size: 1.4rem; color: var(--brand-dark); cursor: pointer; padding: 0;">
+                ☰
+            </button>
                 <div class="topbar-location">Hospital Selayang <span class="topbar-separator">/</span> eIRv3</div>
             </div>
             
@@ -84,29 +85,44 @@
             @yield('content')
         </main>
         
-        <footer class="app-footer">eIRv3 · Hospital Selayang · QA/PRSK · SULIT</footer>
+        <footer class="app-footer" style="text-align: center; color: var(--muted); font-size: 12px; padding: 24px 0; line-height: 1.6;">
+            <strong style="color: var(--brand-dark);">eIRv3</strong> &middot; Hospital Selayang &middot; <strong>Team IR Wizard</strong><br>
+            <span style="font-size: 11px; opacity: 0.85;">
+                Lead: Dr. Ariffah Binti Mokhtar (Unit PRSK) &nbsp;|&nbsp; 
+                Analyst: Mr. Nur Nu’man Bin Sidik (ITD) &nbsp;|&nbsp; 
+                Developer: Mr. Muhammad Haziq Zikri Bin Zainodin (ITD)
+            </span>
+        </footer>
     </div>
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Use querySelector to target the class instead of an ID
+    // Handles the hamburger button click
+    function toggleSidebar() {
         const sidebar = document.querySelector('.sidebar');
-        const toggleBtn = document.getElementById('sidebar-toggle');
+        sidebar.classList.toggle('collapsed');
+        localStorage.setItem('sidebar-collapsed', sidebar.classList.contains('collapsed'));
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const sidebar = document.querySelector('.sidebar');
+        const navLinks = document.querySelectorAll('.sidebar .nav-link');
         
-        // Only run if both elements exist on the page
-        if (sidebar && toggleBtn) {
-            // Restore sidebar state from local storage on page load
-            if (localStorage.getItem('sidebar-collapsed') === 'true') {
-                sidebar.classList.add('collapsed');
-            }
-            
-            // Toggle the sidebar when the button is clicked
-            toggleBtn.addEventListener('click', function() {
-                sidebar.classList.toggle('collapsed');
-                localStorage.setItem('sidebar-collapsed', sidebar.classList.contains('collapsed'));
-            });
+        // 1. Restore the collapsed state when the page loads
+        if (localStorage.getItem('sidebar-collapsed') === 'true') {
+            sidebar.classList.add('collapsed');
         }
+
+        // 2. Expand sidebar when a collapsed icon is clicked (and prevent accidental navigation)
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (sidebar.classList.contains('collapsed')) {
+                    e.preventDefault(); // Stop the link from changing the page
+                    sidebar.classList.remove('collapsed'); // Expand the sidebar instead
+                    localStorage.setItem('sidebar-collapsed', 'false'); // Save the new open state
+                }
+            });
+        });
     });
 </script>
 </body>
