@@ -12,12 +12,13 @@
 <body>
 <div class="app-shell">
     <aside class="sidebar" id="app-sidebar" aria-label="Main navigation">
-        <a href="{{ url('/') }}" class="brand">
-            <span class="brand-main">e-<strong>IR</strong><span class="brand-version">v3</span></span>
-            <span class="brand-subtitle">HOSPITAL SELAYANG</span>
-        </a>
+        <div class="ir-sidebar-brand">
+            <a href="{{ route('dashboard') }}" class="ir-logo-text" style="text-decoration: none;">
+                eIRv3
+                <span style="display: block; font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 6px;">Incident Report</span>
+            </a>
+        </div>
         <div class="sidebar-rule"></div>
-        <p class="nav-heading">WORKSPACE</p>
         <nav class="nav-links" aria-label="Modules">
             <a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="{{ url('/') }}">
                 <span class="nav-symbol" aria-hidden="true">▦</span> <span class="nav-text">Dashboard</span>
@@ -54,27 +55,26 @@
                 @endif
             @endauth
         </nav>
-        <div class="sidebar-bottom">
-            <span class="signal-dot" aria-hidden="true"></span>
-            <span>QA / PRSK MODULE</span>
-        </div>
     </aside>
     
     <div class="workspace">
         <header class="topbar">
             <div style="display: flex; align-items: center; gap: 16px;">
-                <button id="sidebar-toggle" style="background: none; border: none; font-size: 1.4rem; color: var(--navy); cursor: pointer; padding: 0;">☰</button>
+            <button id="sidebar-toggle" style="background: none; border: none; font-size: 1.4rem; color: var(--brand-dark); cursor: pointer; padding: 0;">
+    ☰
+</button>
                 <div class="topbar-location">Hospital Selayang <span class="topbar-separator">/</span> eIRv3</div>
             </div>
             
             @auth
-                <div class="ir-topbar-user">
-                    <span>{{ auth()->user()->name }} | {{ auth()->user()->jabatan ?? 'No Jabatan' }}</span>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf 
-                        <button type="submit" class="ir-btn ir-btn-light">Log out</button>
-                    </form>
-                </div>
+            <div style="display: flex; align-items: center; gap: 16px; font-size: 12px; font-weight: 700; color: var(--brand-dark);">
+                <span>{{ auth()->user()->name }} | {{ auth()->user()->jabatan ?? 'No Department' }}</span>
+                
+                <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+                    @csrf
+                    <button type="submit" class="ir-btn ir-btn-light" style="padding: 6px 16px; min-height: 32px; font-size: 12px;">Log out</button>
+                </form>
+            </div>
             @else
                 <a href="{{ route('login') }}" class="ir-btn ir-btn-orange">Sign in</a>
             @endauth
@@ -90,19 +90,23 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const sidebar = document.getElementById('app-sidebar');
+        // Use querySelector to target the class instead of an ID
+        const sidebar = document.querySelector('.sidebar');
         const toggleBtn = document.getElementById('sidebar-toggle');
         
-        // Restore sidebar state from local storage on page load
-        if (localStorage.getItem('sidebar-collapsed') === 'true') {
-            sidebar.classList.add('collapsed');
+        // Only run if both elements exist on the page
+        if (sidebar && toggleBtn) {
+            // Restore sidebar state from local storage on page load
+            if (localStorage.getItem('sidebar-collapsed') === 'true') {
+                sidebar.classList.add('collapsed');
+            }
+            
+            // Toggle the sidebar when the button is clicked
+            toggleBtn.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+                localStorage.setItem('sidebar-collapsed', sidebar.classList.contains('collapsed'));
+            });
         }
-        
-        // Toggle the sidebar when the button is clicked
-        toggleBtn.addEventListener('click', function() {
-            sidebar.classList.toggle('collapsed');
-            localStorage.setItem('sidebar-collapsed', sidebar.classList.contains('collapsed'));
-        });
     });
 </script>
 </body>
