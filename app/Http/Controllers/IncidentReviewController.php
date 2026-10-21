@@ -22,9 +22,9 @@ class IncidentReviewController extends Controller
             'A reviewer cannot process their own incident report.'
         );
 
-        // 2. Validate data from the new QA Form
+        // 2. Validate data from the new QA Form - Added 'close'
         $data = $request->validate([
-            'action' => ['required', Rule::in(['needs_feedback', 'needs_rca'])], // From the submit buttons
+            'action' => ['required', Rule::in(['needs_feedback', 'needs_rca', 'close'])], // Added 'close'
             'actions_taken' => ['nullable', 'array'],
             'actions_taken.*' => ['string', Rule::in([
                 'prescription_slip', 'monitor_trend', 'rca', 'mirca',
@@ -49,10 +49,17 @@ class IncidentReviewController extends Controller
             }
 
             // 3. Determine Status and State Machine class based on the QA's action
-            $newStatus = $data['action'] === 'needs_feedback' ? 'feedback_required' : 'rca_required';
-            $newState = $data['action'] === 'needs_feedback' 
-                ? \App\States\IncidentState\NeedsFeedback::class 
-                : \App\States\IncidentState\NeedsRCA::class;
+            if ($data['action'] === 'needs_feedback') {
+                $newStatus = 'feedback_required';
+                $newState = \App\States\IncidentState\NeedsFeedback::class;
+            } elseif ($data['action'] === 'needs_rca') {
+                $newStatus = 'rca_required';
+                $newState = \App\States\IncidentState\NeedsRCA::class;
+            } else {
+                // New Close logic
+                $newStatus = 'closed';
+                $newState = \App\States\IncidentState\Closed::class;
+            }
 
             // 4. Update the report
             $locked->update([
@@ -69,7 +76,14 @@ class IncidentReviewController extends Controller
             ]);
         });
 
-        $statusName = $request->action === 'needs_feedback' ? 'Feedback Required' : 'RCA Required';
+        // Determine status name for the success message
+        if ($request->action === 'needs_feedback') {
+            $statusName = 'Feedback Required';
+        } elseif ($request->action === 'needs_rca') {
+            $statusName = 'RCA Required';
+        } else {
+            $statusName = 'Closed';
+        }
 
         return redirect()->route('ir.show', $incidentReport)
             ->with('success', "Review submitted successfully. The report is now marked as {$statusName}.");

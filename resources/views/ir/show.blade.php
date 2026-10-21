@@ -59,15 +59,22 @@
     </div>
 
     @if($incident->status !== 'submitted')
-        <!-- Read-only view for already processed reports -->
-        <dl class="ir-details">
-            <dt>Decision</dt><dd><span class="ir-status ir-status-{{ $incident->status }}">{{ ucwords(str_replace('_', ' ', $incident->status)) }}</span></dd>            <dt>Action taken</dt><dd>{{ $incident->actions_taken ? implode(', ', array_map(fn ($item) => ucwords(str_replace('_', ' ', $item)), $incident->actions_taken)) : '—' }}</dd>
-            <dt>Comments</dt><dd class="ir-prewrap">{{ $incident->review_comments ?: '—' }}</dd>
-            <dt>e-IR submitted?</dt><dd>{{ is_null($incident->eir_submitted) ? 'Not recorded' : ($incident->eir_submitted ? 'Yes' : 'No') }}</dd>
-            <dt>e-IR submission date</dt><dd>{{ $incident->eir_submission_date?->format('d M Y') ?? '—' }}</dd>
-            <dt>Reviewer</dt><dd>{{ $incident->reviewer_name ?? '—' }} · {{ $incident->reviewer_designation }}</dd>
-            <dt>Review date</dt><dd>{{ $incident->reviewed_at?->format('d M Y H:i') ?? '—' }}</dd>
-        </dl>
+    <!-- Read-only view for already processed reports -->
+    <dl class="ir-details">
+        <dt>Decision</dt><dd><span class="ir-status ir-status-{{ $incident->status }}">{{ ucwords(str_replace('_', ' ', $incident->status)) }}</span></dd>
+        <dt>Action taken</dt><dd>{{ $incident->actions_taken ? implode(', ', array_map(fn ($item) => ucwords(str_replace('_', ' ', $item)), $incident->actions_taken)) : '-' }}</dd>
+        <dt>Comments</dt><dd class="ir-prewrap">{{ $incident->review_comments ?: '-' }}</dd>
+        <dt>e-IR submitted?</dt><dd>{{ is_null($incident->eir_submitted) ? 'Not recorded' : ($incident->eir_submitted ? 'Yes' : 'No') }}</dd>
+        <dt>e-IR submission date</dt><dd>{{ $incident->eir_submission_date?->format('d M Y') ?? '-' }}</dd>
+        <dt>Reviewer</dt><dd>{{ $incident->reviewer_name ?? '-' }} ({{ $incident->reviewer_designation }})</dd>
+        <dt>Review date</dt><dd>{{ $incident->reviewed_at?->format('d M Y H:i') ?? '-' }}</dd>
+    </dl>
+    
+    <!-- NEW: Download Button replaces the form when closed -->
+    @if(strtolower($incident->status) === 'closed')
+        <div style="padding: 20px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end;">
+        <a href="{{ route('ir.download.completed', $incident) }}" style="background-color: #0f766e; color: white; padding: 10px 16px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block;">Download Completed IR Form</a>        </div>
+    @endif
         
         @elseif(in_array(auth()->user()->role->slug ?? '', ['qa', 'superadmin']) && $incident->reporter_id !== auth()->id())
         <!-- Cohesive Form matching the screenshot UI -->
@@ -161,9 +168,13 @@
             </div>
             
             <!-- Actions Footer -->
-            <div class="ir-actions" style="padding: 20px 24px; background: #ffffff; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 12px; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
-                <button type="submit" name="action" value="needs_feedback" class="ir-btn ir-btn-light">Request Feedback</button>
-                <button type="submit" name="action" value="needs_rca" class="ir-btn ir-btn-orange">Require RCA</button>
+            <div class="ir-actions" style="padding: 20px 24px; background: #ffffff; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 12px;">
+                
+                <!-- New Close Button with Popup Confirmation -->
+                <button type="submit" name="action" value="close" class="ir-btn" style="background-color: #ef4444; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;" onclick="return confirm('Are you sure you want to close this Incident Report? No further amendments can be made.');">Close Report</button>
+                
+                <button type="submit" name="action" value="needs_feedback" class="ir-btn ir-btn-light" style="padding: 10px 16px; border-radius: 6px; cursor: pointer; border: 1px solid #cbd5e1; background: white; font-weight: bold; color: #1e293b;">Request Feedback</button>
+                <button type="submit" name="action" value="needs_rca" class="ir-btn ir-btn-orange" style="background-color: #0f766e; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;">Require RCA</button>
             </div>
         </form>
     @else
