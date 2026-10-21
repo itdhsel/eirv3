@@ -166,3 +166,19 @@ a { color: inherit; text-decoration: none; }
     padding-bottom: 24px !important;
     align-items: center !important;
 }
+
+/* Ensure the body allows space for the fixed footer */
+body {
+    padding-bottom: 80px; /* Adjust this based on your footer's exact height */
+}
+
+/* Lock the footer to the bottom */
+.app-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    background-color: #ffffff; /* Or your preferred footer background color */
+    border-top: 1px solid #e2e8f0;
+}

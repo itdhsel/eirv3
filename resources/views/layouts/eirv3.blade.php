@@ -96,6 +96,27 @@
     </div>
 </div>
 
+<!-- Scroll to Top Button -->
+<button id="scrollTopBtn" title="Go to top" style="
+    display: none; 
+    position: fixed; 
+    bottom: 90px; /* Sits just above your locked footer */
+    right: 30px; 
+    z-index: 999; 
+    border: none; 
+    outline: none; 
+    background-color: var(--brand-primary, #0f766e); 
+    color: white; 
+    cursor: pointer; 
+    padding: 12px 16px; 
+    border-radius: 50%; 
+    font-size: 16px; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: background-color 0.3s;
+">
+    &#8679;
+</button>
+
 <script>
     // Handles the hamburger button click
     function toggleSidebar() {
@@ -124,6 +145,26 @@
             });
         });
     });
+
+    // Get the button
+    let mybutton = document.getElementById("scrollTopBtn");
+
+    // When the user scrolls down 100px from the top of the document, show the button
+    window.onscroll = function() { scrollFunction() };
+
+    function scrollFunction() {
+        if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
+            mybutton.style.display = "block";
+        } else {
+            mybutton.style.display = "none";
+        }
+    }
+
+    // When the user clicks on the button, scroll to the top of the document smoothly
+    mybutton.onclick = function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script
 </script>
 </body>
 </html>

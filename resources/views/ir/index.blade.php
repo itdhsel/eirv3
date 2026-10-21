@@ -103,6 +103,10 @@
                 @endforelse
             </tbody>
         </table>
+        <!-- Add this directly below your table -->
+        <div style="margin-top: 20px; padding: 10px;">
+            {{ $reports->links() }}
+        </div>
     </div>
 
     <!-- Pagination -->
