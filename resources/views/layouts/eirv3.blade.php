@@ -1,11 +1,37 @@
 <!doctype html>
 <html lang="en">
+<style>
+    /* 1. Lock the sidebar permanently to the left */
+    .sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        height: calc(100vh - 45px) !important; /* Stops right above the footer */
+        z-index: 900 !important;
+        overflow-y: auto !important; /* Allows scrolling INSIDE the sidebar if menu gets long */
+    }
+    
+    /* 2. Lock the footer permanently to the bottom */
+    .app-footer {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        z-index: 1000 !important;
+    }
+
+    /* 3. Push the main scrolling content safely away from the fixed elements */
+    body {
+        padding-left: 263px !important; /* Exact width of your sidebar */
+        padding-bottom: 60px !important; /* Enough space so the footer doesn't cover the bottom of your page */
+    }
+</style>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
     <title>@yield('title', 'Dashboard') | eIRv3</title>
-    <link rel="stylesheet" href="{{ asset('css/eirv3.css') }}?v=3">
+    <link rel="stylesheet" href="{{ asset('css/eirv3.css') }}?v={{ time() }}">
     <link rel="stylesheet" href="{{ asset('css/eirv3-admin.css') }}">
     <link rel="stylesheet" href="{{ asset('css/eirv3-dashboard.css') }}?v=2">
 </head>
@@ -85,13 +111,24 @@
             @yield('content')
         </main>
         
-        <footer class="app-footer" style="text-align: center; color: var(--muted); font-size: 12px; padding: 24px 0; line-height: 1.6;">
-            <strong style="color: var(--brand-dark);">eIRv3</strong> &middot; Hospital Selayang &middot; <strong>Team IR Wizard</strong><br>
-            <span style="font-size: 11px; opacity: 0.85;">
-                Lead: Dr. Ariffah Binti Mokhtar (Unit PRSK) &nbsp;|&nbsp; 
-                Analyst: Mr. Nur Nu’man Bin Sidik (ITD) &nbsp;|&nbsp; 
-                Developer: Mr. Muhammad Haziq Zikri Bin Zainodin (ITD)
-            </span>
+        <!-- Modern App Footer -->
+        <footer class="app-footer">
+            <!-- Left Side: System & Facility -->
+            <div class="footer-left">
+                <span class="footer-brand">eIRv3</span>
+                <span class="footer-separator">|</span>
+                <span class="footer-facility">Hospital Selayang</span>
+            </div>
+
+            <!-- Right Side: Team Credits -->
+            <div class="footer-right">
+                <span class="footer-team-title">Team IR Wizard:</span>
+                <span class="footer-team-names">
+                    Dr. Arifah Binti Mokhtar <span class="footer-role">(Lead)</span> &bull; 
+                    Mr. Nur Nu'man Bin Sidik <span class="footer-role">(Analyst)</span> &bull; 
+                    Mr. Muhammad Haziq Zikri <span class="footer-role">(Dev)</span>
+                </span>
+            </div>
         </footer>
     </div>
 </div>

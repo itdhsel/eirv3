@@ -44,8 +44,8 @@
     @csrf
     @if ($edit) @method('PUT') @endif
 
-<!-- TAB NAVIGATION -->
-<div class="ir-tab-nav">
+    <!-- TAB NAVIGATION -->
+    <div class="ir-tab-nav">
         <button type="button" class="ir-tab-btn active" onclick="openTab(event, 'tab-1')">01. Incident Description</button>
         <button type="button" class="ir-tab-btn" onclick="openTab(event, 'tab-2')">02. Location & Type</button>
         <button type="button" class="ir-tab-btn" onclick="openTab(event, 'tab-3')">03. Outcome & Action</button>
@@ -55,7 +55,6 @@
     <!-- TAB 1: Incident Description -->
     <div id="tab-1" class="ir-tab-pane active">
         <section class="ir-panel">
-            <!-- (Keep all your existing Tab 1 fields here) -->
             <div class="ir-panel-heading"><span>01</span><div><h2>Incident description</h2><p>Items 1–4 of Section A</p></div></div>
             <div class="ir-fields ir-two-col">
                 <label>1. Name of facility / institution <span class="ir-required">*</span>
@@ -117,10 +116,22 @@
             </div>
         </section>
         <div class="ir-tab-actions">
-            <div></div>
-            <div style="display: flex; gap: 12px;">
-                <button type="submit" name="action" value="draft" formnovalidate class="ir-btn" style="background: white; border: 1px solid var(--muted); color: var(--muted);">Save Draft</button>
-                <button type="button" class="ir-btn ir-btn-light" onclick="openTab(null, 'tab-2')">Next: Location & Type &rarr;</button>
+            <!-- Form Navigation Buttons -->
+            <div style="display: flex; align-items: center; gap: 16px; margin-top: 24px;">
+                
+                <!-- Spacer to push the buttons to the right -->
+                <div style="flex-grow: 1;"></div>
+
+                <!-- Save Draft Button -->
+                <button type="submit" name="action" value="draft" formnovalidate class="ir-btn ir-btn-outline" style="background: white; border: 1px solid var(--muted); color: var(--muted);">
+                    Save Draft
+                </button>
+
+                <!-- Next Button -->
+                <button type="button" class="ir-btn ir-btn-primary" onclick="openTab(null, 'tab-2')">
+                    Next: Location & Type &rarr;
+                </button>
+
             </div>
         </div>
     </div>
@@ -203,10 +214,27 @@
             </div>
         </section>
         <div class="ir-tab-actions">
-            <button type="button" class="ir-btn ir-btn-light" onclick="openTab(null, 'tab-1')">&larr; Previous</button>
-            <div style="display: flex; gap: 12px;">
-                <button type="submit" name="action" value="draft" formnovalidate class="ir-btn" style="background: white; border: 1px solid var(--muted); color: var(--muted);">Save Draft</button>
-                <button type="button" class="ir-btn ir-btn-light" onclick="openTab(null, 'tab-3')">Next: Outcome & Action &rarr;</button>
+            <!-- Form Navigation Buttons -->
+            <div style="display: flex; align-items: center; gap: 16px; margin-top: 24px;">
+                
+                <!-- Previous Button -->
+                <button type="button" class="ir-btn ir-btn-light" onclick="openTab(null, 'tab-1')">
+                    &larr; Previous
+                </button>
+
+                <!-- Save Draft Button -->
+                <button type="submit" name="action" value="draft" formnovalidate class="ir-btn ir-btn-outline" style="background: white; border: 1px solid var(--muted); color: var(--muted);">
+                    Save Draft
+                </button>
+
+                <!-- Spacer to push the Next button to the far right -->
+                <div style="flex-grow: 1;"></div>
+
+                <!-- Next Button -->
+                <button type="button" class="ir-btn ir-btn-primary" onclick="openTab(null, 'tab-3')">
+                    Next: Outcome & Action &rarr;
+                </button>
+
             </div>
         </div>
     </div>
@@ -214,7 +242,6 @@
     <!-- TAB 3: Outcome & Action -->
     <div id="tab-3" class="ir-tab-pane">
         <section class="ir-panel" id="actual-only">
-            <!-- (Keep all your existing Tab 3 fields here) -->
             <div class="ir-panel-heading"><span>03</span><div><h2>Patient outcome & immediate action</h2><p>Items 8–9 · Complete only for an actual incident</p></div></div>
             <div class="ir-fields">
                 <label>8. Outcome of incident
@@ -231,10 +258,27 @@
             </div>
         </section>
         <div class="ir-tab-actions">
-            <button type="button" class="ir-btn ir-btn-light" onclick="openTab(null, 'tab-2')">&larr; Previous</button>
-            <div style="display: flex; gap: 12px;">
-                <button type="submit" name="action" value="draft" formnovalidate class="ir-btn" style="background: white; border: 1px solid var(--muted); color: var(--muted);">Save Draft</button>
-                <button type="button" class="ir-btn ir-btn-light" onclick="openTab(null, 'tab-4')">Next: Reporter Details &rarr;</button>
+            <!-- Form Navigation Buttons -->
+            <div style="display: flex; align-items: center; gap: 16px; margin-top: 24px;">
+                
+                <!-- Previous Button -->
+                <button type="button" class="ir-btn ir-btn-light" onclick="openTab(null, 'tab-2')">
+                    &larr; Previous
+                </button>
+
+                <!-- Save Draft Button -->
+                <button type="submit" name="action" value="draft" formnovalidate class="ir-btn ir-btn-outline" style="background: white; border: 1px solid var(--muted); color: var(--muted);">
+                    Save Draft
+                </button>
+
+                <!-- Spacer to push the Next button to the right -->
+                <div style="flex-grow: 1;"></div>
+
+                <!-- Next Button -->
+                <button type="button" class="ir-btn ir-btn-primary" onclick="openTab(null, 'tab-4')">
+                    Next: Reporter Details &rarr;
+                </button>
+
             </div>
         </div>
     </div>
@@ -242,7 +286,6 @@
     <!-- TAB 4: Reporter Details & Submit -->
     <div id="tab-4" class="ir-tab-pane">
         <section class="ir-panel">
-            <!-- (Keep all your existing Tab 4 fields here) -->
             <div class="ir-panel-heading"><span>04</span><div><h2>Reported by</h2><p>Item 10 · Reporter declaration</p></div></div>
             <div class="ir-fields ir-two-col">
                 <label>Designation <span class="ir-required">*</span>
@@ -265,10 +308,27 @@
         </section>
         
         <div class="ir-tab-actions">
-            <button type="button" class="ir-btn ir-btn-light" onclick="openTab(null, 'tab-3')">&larr; Previous</button>
-            <div style="display: flex; gap: 12px;">
-                <button type="submit" name="action" value="draft" formnovalidate class="ir-btn" style="background: white; border: 1px solid var(--muted); color: var(--muted);">Save Draft</button>
-                <button type="submit" name="action" value="submit" class="ir-btn ir-btn-orange">{{ $edit ? 'Resubmit to QATU' : 'Submit IR to QATU' }}</button>
+            <!-- Form Navigation Buttons -->
+            <div style="display: flex; align-items: center; gap: 16px; margin-top: 24px;">
+                
+                <!-- Previous Button -->
+                <button type="button" class="ir-btn ir-btn-light" onclick="openTab(null, 'tab-3')">
+                    &larr; Previous
+                </button>
+
+                <!-- Save Draft Button -->
+                <button type="submit" name="action" value="draft" formnovalidate class="ir-btn ir-btn-outline" style="background: white; border: 1px solid var(--muted); color: var(--muted);">
+                    Save Draft
+                </button>
+
+                <!-- Spacer to push the Submit button to the right -->
+                <div style="flex-grow: 1;"></div>
+
+                <!-- Submit Button -->
+                <button type="submit" name="action" value="submit" class="ir-btn ir-btn-orange">
+                    {{ $edit ? 'Resubmit to QATU' : 'Submit IR to QATU' }}
+                </button>
+
             </div>
         </div>
     </div>
@@ -295,7 +355,7 @@
         }
     }, true);
 
-    // New Dynamic Visibility Logic
+    // Dynamic Visibility Logic
     document.addEventListener('DOMContentLoaded', function() {
         
         // 1. Department Toggle
@@ -331,7 +391,7 @@
         exampleSelect.addEventListener('change', toggleExampleOther);
         toggleExampleOther(); // Run on load
         
-        // 3. Patient Type Toggle (Optional, since you had an 'Other patient type' field)
+        // 3. Patient Type Toggle 
         const patientTypeRadios = document.querySelectorAll('input[name="patient_type"]');
         const patientTypeOtherWrapper = document.getElementById('patient-type-other-wrapper');
         

@@ -1,13 +1,13 @@
 @extends('layouts.eirv3')
 @section('title', 'Incident Report')
 @section('content')
-<section class="ir-intro">
+<section class="ir-intro" style="margin-bottom: 32px;">
     <div>
-        <p class="ir-eyebrow">SULIT · MOH IR 2.0/2017</p>
-        <h1>Incident Report #{{ str_pad((string) $incident->id, 6, '0', STR_PAD_LEFT) }}</h1>
-        <p>Reported {{ $incident->reported_at->format('d M Y') }} · <span class="ir-status ir-status-{{ $incident->status }}">{{ ucfirst($incident->status) }}</span></p>
+        <h1 style="margin: 0 0 8px 0; color: #0f172a;">Incident Report #{{ str_pad((string) $incident->id, 6, '0', STR_PAD_LEFT) }}</h1>
+        <p style="margin: 0; color: #64748b;">Reported {{ $incident->reported_at->format('d M Y') }} · <span class="ir-status ir-status-{{ $incident->status }}">{{ ucfirst($incident->status) }}</span></p>
     </div>
-    <div class="ir-actions">
+    
+    <div class="ir-actions" style="margin-top: 20px;">
         <a class="ir-btn ir-btn-light" href="{{ route('ir.index') }}">Back to IR List</a>
         @if($incident->status === 'returned' && $incident->reporter_id === auth()->id())
             <a class="ir-btn ir-btn-orange" href="{{ route('ir.edit',$incident) }}">Correct & Resubmit</a>
@@ -25,30 +25,132 @@
         <span>A</span>
         <div><h2>Section A — Reporter</h2><p>Incident description, outcome and reporter details</p></div>
     </div>
-    <dl class="ir-details">
-        <dt>Facility / institution</dt><dd>{{ $incident->facility_name }}</dd>
-        <dt>Patient's name</dt><dd>{{ $incident->patient_name }}</dd>
-        <dt>Date of incident</dt><dd>{{ ($incident->incident_date ?? $incident->approximate_incident_date)?->format('d M Y') ?? '—' }} {{ $incident->approximate_incident_date ? '(approximate)' : '' }}</dd>
-        <dt>Time of incident</dt><dd>{{ $incident->incident_time ?? $incident->approximate_incident_time ?? '—' }} {{ $incident->approximate_incident_time ? '(approximate)' : '' }}</dd>
-        <dt>Patient RN / ID</dt><dd>{{ $incident->patient_identifier ?: '—' }}</dd>
-        <dt>Age / Ethnic</dt><dd>{{ $incident->patient_age ?? '—' }} / {{ $incident->ethnic ?: '—' }}</dd>
-        <dt>Gender / Status</dt><dd>{{ ucfirst($incident->gender) }} / {{ ucfirst($incident->patient_status) }}</dd>
-        <dt>Language barrier</dt><dd>{{ ucfirst($incident->language_barrier) }}</dd>
-        <dt>Diagnosis</dt><dd class="ir-prewrap">{{ $incident->diagnosis ?: '—' }}</dd>
-        <dt>Patient type</dt><dd>{{ str_replace('_',' ',ucwords($incident->patient_type,'_')) }} {{ $incident->patient_type_other }}</dd>
-        <dt>Departments</dt><dd>{{ implode(', ', $incident->departments ?? []) }} {{ $incident->departments_other }}</dd>
-        <dt>Location / ward / clinic</dt><dd>{{ $incident->location_ward_clinic ?: '—' }}</dd>
-        <dt>Incident type</dt><dd>{{ $incident->incident_type === 'near_miss' ? 'Near Miss' : 'Actual' }}</dd>
-        <dt>Other type of incident</dt><dd>{{ $incident->other_incident_type ?: '—' }}</dd>
-        <dt>Brief description</dt><dd class="ir-prewrap">{{ $incident->description }}</dd>
+    
+    <div style="padding: 24px; display: flex; flex-direction: column; gap: 24px; background-color: #ffffff; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
+        
+    <!-- Facility & Date -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <div>
+                    <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Facility / institution</label>
+                    <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">{{ $incident->facility_name }}</div>
+                </div>
+                <div>
+                    <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Date of incident</label>
+                    <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">
+                        {{ $incident->incident_date ? $incident->incident_date->format('d M Y') : 'N/A' }} 
+                        (Approximate: {{ $incident->approximate_incident_date ? $incident->approximate_incident_date->format('d M Y') : 'N/A' }})
+                    </div>
+                </div>
+                <div>
+                    <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Time of incident</label>
+                    <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">
+                        {{ $incident->incident_time ? substr($incident->incident_time, 0, 5) : 'N/A' }} 
+                        (Approximate: {{ $incident->approximate_incident_time ? substr($incident->approximate_incident_time, 0, 5) : 'N/A' }})
+                    </div>
+                </div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 0;">
+
+    <!-- Patient Details -->
+    <h3 style="font-size: 1.05em; color: #0f172a; margin: 0; font-weight: bold;">Patient Details</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <div>
+                    <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Patient's name</label>
+                    <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">{{ $incident->patient_name }}</div>
+                </div>
+                <div>
+                    <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Patient RN / ID</label>
+                    <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">{{ $incident->patient_identifier ?: '—' }}</div>
+                </div>
+                <div>
+                    <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Age</label>
+                    <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">{{ $incident->patient_age ?? '—' }}</div>
+                </div>
+                <div>
+                    <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Ethnic</label>
+                    <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">{{ $incident->ethnic ?: '—' }}</div>
+                </div>
+                <div>
+                    <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Gender</label>
+                    <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">{{ ucfirst($incident->gender) }}</div>
+                </div>
+                <div>
+                    <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Status</label>
+                    <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">{{ ucfirst($incident->patient_status) }}</div>
+                </div>
+                <div>
+                    <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Language barrier</label>
+                    <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">{{ ucfirst($incident->language_barrier) }}</div>
+                </div>
+                <div>
+                    <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Patient type</label>
+                    <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">{{ str_replace('_',' ',ucwords($incident->patient_type,'_')) }} {{ $incident->patient_type_other }}</div>
+                </div>
+            </div>
+
+        <!-- Incident Details -->
+        <h3 style="font-size: 1.05em; color: #0f172a; margin: 0; font-weight: bold;">Incident Details</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+            <div>
+                <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Location / ward / clinic</label>
+                <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">{{ $incident->location_ward_clinic ?: '—' }}</div>
+            </div>
+            <div>
+                <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Departments</label>
+                <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">{{ implode(', ', $incident->departments ?? []) }} {{ $incident->departments_other }}</div>
+            </div>
+            <div>
+                <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Incident type</label>
+                <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">{{ $incident->incident_type === 'near_miss' ? 'Near Miss' : 'Actual' }}</div>
+            </div>
+            <div>
+                <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Other type of incident</label>
+                <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">{{ $incident->other_incident_type ?: '—' }}</div>
+            </div>
+            <div style="grid-column: 1 / -1;">
+                <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Example of incident</label>
+                <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">{{ $incident->example_incident_type ?: '—' }}</div>
+            </div>
+        </div>
+
+        <div>
+            <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Brief description</label>
+            <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155; white-space: pre-wrap;">{{ $incident->description }}</div>
+        </div>
+
         @if ($incident->incident_type === 'actual')
-        <dt>Outcome of incident</dt><dd>{{ ucfirst($incident->patient_outcome ?? '—') }}</dd>
-        <dt>Immediate action</dt><dd class="ir-prewrap">{{ $incident->immediate_action }}</dd>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+            <div>
+                <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Outcome of incident</label>
+                <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">{{ ucfirst($incident->patient_outcome ?? '—') }}</div>
+            </div>
+        </div>
+        <div>
+            <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Immediate action</label>
+            <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155; white-space: pre-wrap;">{{ $incident->immediate_action }}</div>
+        </div>
         @endif
-        <dt>Reporter</dt><dd>{{ $incident->reporter_name }}</dd>
-        <dt>Designation</dt><dd>{{ ucwords(str_replace('_',' ',$incident->reporter_designation)) }} {{ $incident->reporter_designation_other }}</dd>
-        <dt>Submitted</dt><dd>{{ $incident->reported_at->format('d M Y') }} · acknowledged via user account</dd>
-    </dl>
+
+        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 0;">
+
+        <!-- Reporter Details -->
+        <h3 style="font-size: 1.05em; color: #0f172a; margin: 0; font-weight: bold;">Reporter Details</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+            <div>
+                <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Reporter</label>
+                <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">{{ $incident->reporter_name }}</div>
+            </div>
+            <div>
+                <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Designation</label>
+                <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">{{ ucwords(str_replace('_',' ',$incident->reporter_designation)) }} {{ $incident->reporter_designation_other }}</div>
+            </div>
+            <div>
+                <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Submitted</label>
+                <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">{{ $incident->reported_at->format('d M Y') }} · acknowledged via user account</div>
+            </div>
+        </div>
+    </div>
 </section>
 
 <!-- SECTION B -->
@@ -59,24 +161,61 @@
     </div>
 
     @if($incident->status !== 'submitted')
-    <!-- Read-only view for already processed reports -->
-    <dl class="ir-details">
-        <dt>Decision</dt><dd><span class="ir-status ir-status-{{ $incident->status }}">{{ ucwords(str_replace('_', ' ', $incident->status)) }}</span></dd>
-        <dt>Action taken</dt><dd>{{ $incident->actions_taken ? implode(', ', array_map(fn ($item) => ucwords(str_replace('_', ' ', $item)), $incident->actions_taken)) : '-' }}</dd>
-        <dt>Comments</dt><dd class="ir-prewrap">{{ $incident->review_comments ?: '-' }}</dd>
-        <dt>e-IR submitted?</dt><dd>{{ is_null($incident->eir_submitted) ? 'Not recorded' : ($incident->eir_submitted ? 'Yes' : 'No') }}</dd>
-        <dt>e-IR submission date</dt><dd>{{ $incident->eir_submission_date?->format('d M Y') ?? '-' }}</dd>
-        <dt>Reviewer</dt><dd>{{ $incident->reviewer_name ?? '-' }} ({{ $incident->reviewer_designation }})</dd>
-        <dt>Review date</dt><dd>{{ $incident->reviewed_at?->format('d M Y H:i') ?? '-' }}</dd>
-    </dl>
+    <!-- Read-only form view for already processed reports -->
+    <div style="padding: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; background-color: #ffffff; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
+        <div>
+            <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Decision</label>
+            <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">
+                <span class="ir-status ir-status-{{ $incident->status }}">{{ ucwords(str_replace('_', ' ', $incident->status)) }}</span>
+            </div>
+        </div>
+        <div>
+            <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Action taken</label>
+            <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">
+                {{ $incident->actions_taken ? implode(', ', array_map(fn ($item) => ucwords(str_replace('_', ' ', $item)), $incident->actions_taken)) : '-' }}
+            </div>
+        </div>
+        <div>
+            <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">e-IR submitted?</label>
+            <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">
+                {{ is_null($incident->eir_submitted) ? 'Not recorded' : ($incident->eir_submitted ? 'Yes' : 'No') }}
+            </div>
+        </div>
+        <div>
+            <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">e-IR submission date</label>
+            <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">
+                {{ $incident->eir_submission_date?->format('d M Y') ?? '-' }}
+            </div>
+        </div>
+        <div style="grid-column: 1 / -1;">
+            <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Comments</label>
+            <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155; white-space: pre-wrap;">{{ $incident->review_comments ?: '-' }}</div>
+        </div>
+        
+        <div style="grid-column: 1 / -1;"><hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 0;"></div>
+        
+        <div>
+            <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Reviewer</label>
+            <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">
+                {{ $incident->reviewer_name ?? '-' }} ({{ $incident->reviewer_designation }})
+            </div>
+        </div>
+        <div>
+            <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px; font-size: 0.95em;">Review date</label>
+            <div style="width: 100%; padding: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #334155;">
+                {{ $incident->reviewed_at?->format('d M Y H:i') ?? '-' }}
+            </div>
+        </div>
+    </div>
     
     <!-- NEW: Download Button replaces the form when closed -->
     @if(strtolower($incident->status) === 'closed')
-        <div style="padding: 20px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end;">
-        <a href="{{ route('ir.download.completed', $incident) }}" style="background-color: #0f766e; color: white; padding: 10px 16px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block;">Download Completed IR Form</a>        </div>
+        <div style="padding: 20px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
+            <a href="{{ route('ir.download.completed', $incident) }}" style="background-color: #0f766e; color: white; padding: 10px 16px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block;">Download Completed IR Form</a>        
+        </div>
     @endif
         
-        @elseif(in_array(auth()->user()->role->slug ?? '', ['qa', 'superadmin']) && $incident->reporter_id !== auth()->id())
+    @elseif(in_array(auth()->user()->role->slug ?? '', ['qa', 'superadmin']) && $incident->reporter_id !== auth()->id())
         <!-- Cohesive Form matching the screenshot UI -->
         <form method="POST" action="{{ route('ir.review', $incident) }}">
             @csrf
@@ -168,7 +307,7 @@
             </div>
             
             <!-- Actions Footer -->
-            <div class="ir-actions" style="padding: 20px 24px; background: #ffffff; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 12px;">
+            <div class="ir-actions" style="padding: 20px 24px; background: #ffffff; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 12px; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
                 
                 <!-- New Close Button with Popup Confirmation -->
                 <button type="submit" name="action" value="close" class="ir-btn" style="background-color: #ef4444; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;" onclick="return confirm('Are you sure you want to close this Incident Report? No further amendments can be made.');">Close Report</button>

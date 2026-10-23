@@ -165,6 +165,12 @@ class IncidentReportController extends Controller
         if ($data['reporter_designation'] !== 'other') $data['reporter_designation_other'] = null;
         if (! in_array('Others', $data['departments'], true)) $data['departments_other'] = null;
 
+        // Explicitly set empty date/time fields to null for the database
+        $data['incident_date'] = !empty($data['incident_date']) ? $data['incident_date'] : null;
+        $data['approximate_incident_date'] = !empty($data['approximate_incident_date']) ? $data['approximate_incident_date'] : null;
+        $data['incident_time'] = !empty($data['incident_time']) ? $data['incident_time'] : null;
+        $data['approximate_incident_time'] = !empty($data['approximate_incident_time']) ? $data['approximate_incident_time'] : null;
+
         return $data;
     }
 
@@ -201,7 +207,7 @@ class IncidentReportController extends Controller
         $pdf->AddPage();
         $pdf->useTemplate($templateId);
 
-        $pdf->SetFont('Arial', '', 9);
+        $pdf->SetFont('Arial', 'B', 9);
         $pdf->SetTextColor(0, 0, 0);
 
         // Date of Reporting (Top Right) - Split into Day, Month, Year
@@ -224,7 +230,7 @@ class IncidentReportController extends Controller
         $pdf->SetXY(136, 38.5);
         $pdf->Write(0, substr($incidentReport->patient_name ?? '', 0, 45));
 
-    // 2. Date of Incident - Split into individual digits for the boxes
+        // 2. Date of Incident - Split into individual digits for the boxes
         if ($incidentReport->incident_date) {
             $d = $incidentReport->incident_date->format('d');
             $m = $incidentReport->incident_date->format('m');
@@ -251,13 +257,17 @@ class IncidentReportController extends Controller
             $pdf->Write(0, $y[2]);
             $pdf->SetXY(118, 48.7); // Box 4
             $pdf->Write(0, $y[3]);
-            
-        } elseif ($incidentReport->approximate_incident_date) {
-            $pdf->SetXY(150, 49); // X/Y for Approximate Date line (adjust if needed)
+        } 
+
+        // Approximate Date Line (Print date or N/A)
+        $pdf->SetXY(150, 49); // X/Y for Approximate Date line (adjust if needed)
+        if ($incidentReport->approximate_incident_date) {
             $pdf->Write(0, $incidentReport->approximate_incident_date->format('d / m / Y'));
+        } else {
+            $pdf->Write(0, 'N/A');
         }
 
-    // 3. Time of Incident - Split into Hours and Minutes
+        // 3. Time of Incident - Split into Hours and Minutes
         if ($incidentReport->incident_time) {
             $timeParts = explode(':', $incidentReport->incident_time);
             
@@ -291,16 +301,21 @@ class IncidentReportController extends Controller
                     $pdf->Write(0, '____');
                 }
             }
-        } elseif ($incidentReport->approximate_incident_time) {
-            $pdf->SetXY(150, 58); // X/Y for Approximate Time line
+        } 
+
+        // Approximate Time Line (Print time or N/A)
+        $pdf->SetXY(150, 58); // X/Y for Approximate Time line
+        if ($incidentReport->approximate_incident_time) {
             $pdf->Write(0, substr($incidentReport->approximate_incident_time, 0, 5));
+        } else {
+            $pdf->Write(0, 'N/A');
         }
 
         // 4. Patient Details
         $pdf->SetXY(84, 67);
         $pdf->Write(0, $incidentReport->patient_identifier ?? ''); // RN
 
-        $pdf->SetXY(130.5, 67);
+        $pdf->SetXY(131, 67);
         $pdf->Write(0, $incidentReport->patient_age ?? ''); // Age
 
         $pdf->SetXY(163, 67);
@@ -336,7 +351,7 @@ class IncidentReportController extends Controller
         }
 
         // Diagnosis
-        $pdf->SetXY(100, 74);
+        $pdf->SetXY(100, 74.5);
         $pdf->Write(0, substr($incidentReport->diagnosis ?? '', 0, 90));
 
         // 5. TYPE OF PATIENT
@@ -466,6 +481,7 @@ class IncidentReportController extends Controller
         }
 
         // 7. Brief Description
+        $pdf->SetFont('Arial', '', 8);
         $pdf->SetXY(16, 215);
         $pdf->MultiCell(180, 5, $incidentReport->description ?? '');
 

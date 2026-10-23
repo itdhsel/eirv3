@@ -31,7 +31,13 @@ a { color: inherit; text-decoration: none; }
     padding: 30px 18px 22px; 
     display: flex; 
     flex-direction: column; 
+
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    z-index: 1000;
 }
+
 .ir-sidebar-brand { 
     padding: 0 20px 36px; /* Matched spacing to the reference image */
     display: flex; 
@@ -172,13 +178,62 @@ body {
     padding-bottom: 80px; /* Adjust this based on your footer's exact height */
 }
 
-/* Lock the footer to the bottom */
+/* App Footer */
 .app-footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1000;
-    background-color: #ffffff; /* Or your preferred footer background color */
-    border-top: 1px solid #e2e8f0;
+    position: fixed; 
+    bottom: 0; 
+    left: 0; 
+    width: 100%; 
+    background-color: rgba(255, 255, 255, 0.95); 
+    backdrop-filter: blur(4px);
+    border-top: 1px solid #e2e8f0; 
+    z-index: 1000; 
+    padding: 12px 32px; 
+    font-size: 0.75rem; 
+    color: #64748b; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+}
+
+.footer-left {
+    display: flex; 
+    align-items: center; 
+    gap: 12px;
+}
+
+.footer-brand {
+    color: #0f766e; 
+    font-size: 0.9rem; 
+    font-weight: 800; 
+    letter-spacing: 0.5px;
+}
+
+.footer-separator {
+    color: #cbd5e1;
+}
+
+.footer-facility {
+    font-weight: 600; 
+    color: #475569;
+}
+
+.footer-right {
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    text-align: right;
+}
+
+.footer-team-title {
+    color: #475569;
+    font-weight: 700;
+}
+
+.footer-team-names {
+    color: #94a3b8;
+}
+
+.footer-role {
+    font-style: italic;
 }
