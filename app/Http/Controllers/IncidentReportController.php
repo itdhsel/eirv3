@@ -542,7 +542,7 @@ class IncidentReportController extends Controller
             $pdf->SetFont('Arial', 'B', 9);
 
             // 9. Immediate Action (Moved down and shifted right into the empty box)
-            $pdf->SetXY(55, 66); 
+            $pdf->SetXY(52, 55); 
             $pdf->MultiCell(140, 5, $incidentReport->immediate_action ?? '');
 
             // 10. Designation (Mapped to checkboxes instead of plain text)

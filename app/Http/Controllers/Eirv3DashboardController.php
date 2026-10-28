@@ -57,11 +57,9 @@ class Eirv3DashboardController extends Controller
         ];
 
         $recentReports = (clone $visibleReports)
-            // Added 'state' to the select array so you can display the workflow state on the dashboard
-            ->select(['id', 'reporter_id', 'reported_at', 'incident_type', 'status', 'state', 'created_at'])
-            ->latest('created_at')
-            ->limit(8)
-            ->get();
+        ->latest('created_at')
+        ->limit(8)
+        ->get();
 
             return view('dashboard', compact('role', 'stats', 'recentReports', 'isReviewer'));
     }
