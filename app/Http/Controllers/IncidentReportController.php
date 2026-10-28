@@ -259,11 +259,18 @@ class IncidentReportController extends Controller
             $pdf->Write(0, $y[3]);
         } 
 
-        // Approximate Date Line (Print date or N/A)
-        $pdf->SetXY(150, 49); // X/Y for Approximate Date line (adjust if needed)
+        // 2. Approximate Date Line - Split to avoid printing over the form's slashes
         if ($incidentReport->approximate_incident_date) {
-            $pdf->Write(0, $incidentReport->approximate_incident_date->format('d / m / Y'));
+            $pdf->SetXY(166, 51); // X for Day
+            $pdf->Write(0, $incidentReport->approximate_incident_date->format('d'));
+            
+            $pdf->SetXY(174, 51); // X for Month
+            $pdf->Write(0, $incidentReport->approximate_incident_date->format('m'));
+            
+            $pdf->SetXY(180, 51); // X for Year
+            $pdf->Write(0, $incidentReport->approximate_incident_date->format('Y'));
         } else {
+            $pdf->SetXY(167, 51);
             $pdf->Write(0, 'N/A');
         }
 
@@ -272,7 +279,6 @@ class IncidentReportController extends Controller
             $timeParts = explode(':', $incidentReport->incident_time);
             
             if (count($timeParts) >= 2) {
-                // Pad with zero just in case it's a single digit like "9" -> "09"
                 $h = str_pad($timeParts[0], 2, '0', STR_PAD_LEFT);
                 $m = str_pad($timeParts[1], 2, '0', STR_PAD_LEFT);
 
@@ -283,7 +289,7 @@ class IncidentReportController extends Controller
                 $pdf->Write(0, $h[1]);
                 
                 // Minute boxes
-                $pdf->SetXY(74, 57.5); // Box 1 (After the colon)
+                $pdf->SetXY(74, 57.5); // Box 1 
                 $pdf->Write(0, $m[0]);
                 $pdf->SetXY(80.5, 57.5); // Box 2
                 $pdf->Write(0, $m[1]);
@@ -292,22 +298,40 @@ class IncidentReportController extends Controller
                 $isPM = (int)$timeParts[0] >= 12;
                 
                 if ($isPM) {
-                    // It is PM, so we cross out "AM"
-                    $pdf->SetXY(89, 55.5); // X coordinate over "AM"
-                    $pdf->Write(0, '-____');
+                    $pdf->SetXY(90, 56.5); // Adjusted Y for center strikethrough over "AM"
+                    $pdf->Write(0, '----'); // Hyphens create a strikethrough instead of underscores
                 } else {
-                    // It is AM, so we cross out "PM"
-                    $pdf->SetXY(96, 55.5); // X coordinate over "PM"
-                    $pdf->Write(0, '____');
+                    $pdf->SetXY(97, 56.5); // Adjusted Y for center strikethrough over "PM"
+                    $pdf->Write(0, '----');
                 }
             }
         } 
 
-        // Approximate Time Line (Print time or N/A)
-        $pdf->SetXY(150, 58); // X/Y for Approximate Time line
+        // 3. Approximate Time Line - Split to avoid printing over the form's colon
         if ($incidentReport->approximate_incident_time) {
-            $pdf->Write(0, substr($incidentReport->approximate_incident_time, 0, 5));
+            $approxTimeParts = explode(':', $incidentReport->approximate_incident_time);
+            if (count($approxTimeParts) >= 2) {
+                $approxH = str_pad($approxTimeParts[0], 2, '0', STR_PAD_LEFT);
+                $approxM = str_pad($approxTimeParts[1], 2, '0', STR_PAD_LEFT);
+
+                $pdf->SetXY(166, 61); // X for approximate Hour
+                $pdf->Write(0, $approxH);
+                
+                $pdf->SetXY(171, 61); // X for approximate Minute
+                $pdf->Write(0, $approxM);
+
+                // Approximate AM/PM cross-out
+                $isApproxPM = (int)$approxTimeParts[0] >= 12;
+                if ($isApproxPM) {
+                    $pdf->SetXY(178, 60.5); // X/Y over approximate "AM"
+                    $pdf->Write(0, '----');
+                } else {
+                    $pdf->SetXY(185, 60.5); // X/Y over approximate "PM"
+                    $pdf->Write(0, '----');
+                }
+            }
         } else {
+            $pdf->SetXY(166.5, 61);
             $pdf->Write(0, 'N/A');
         }
 
@@ -321,7 +345,7 @@ class IncidentReportController extends Controller
         $pdf->SetXY(163, 67);
         $pdf->Write(0, $incidentReport->ethnic ?? ''); // Ethnic
 
-    // Gender, Status, Language (Drawing a box around the selected option)
+        // 4.Gender, Status, Language (Drawing a box around the selected option)
         $pdf->SetLineWidth(0.4); // Make the box line slightly thicker
 
         // Box for Gender
@@ -377,7 +401,7 @@ class IncidentReportController extends Controller
                 $pdf->SetXY(46.5, 90.5); 
                 $pdf->Write(0, 'X');
                 // Print the 'specify' text on the dotted line below it
-                $pdf->SetFont('Arial', '', 9);
+                $pdf->SetFont('Arial', 'B', 9);
                 $pdf->SetXY(55, 89);
                 $pdf->Write(0, substr($incidentReport->patient_type_other ?? '', 0, 20));
                 $pdf->SetFont('Arial', 'B', 12);
@@ -417,14 +441,14 @@ class IncidentReportController extends Controller
             
             // Print the 'specify' text if 'Others' is selected
             if (in_array('Others', $incidentReport->departments)) {
-                $pdf->SetFont('Arial', '', 9);
+                $pdf->SetFont('Arial', 'B', 9);
                 $pdf->SetXY(115, 105);
                 $pdf->Write(0, substr($incidentReport->departments_other ?? '', 0, 40));
                 $pdf->SetFont('Arial', 'B', 12);
             }
         }
         
-        $pdf->SetFont('Arial', '', 9); // Reset font for Location/Ward
+        $pdf->SetFont('Arial', 'B', 9); // Reset font for Location/Ward
 
 
         // Location / Ward
@@ -440,93 +464,176 @@ class IncidentReportController extends Controller
             $pdf->SetXY(90.5, 113.5); // Near Miss Box
             $pdf->Write(0, 'X');
         }
-        $pdf->SetFont('Arial', '', 9); // Reset font
+        $pdf->SetFont('Arial', 'B', 9); // Reset font
 
         // Examples of incidents that need to be reported
         $pdf->SetFont('Arial', 'B', 12);
-        
-        // If your database stores the selected example (e.g., 'i', 'ii', 'iii') in example_incident_type
+                
+        // Calibrated Y-coordinates (shifted up by 9 points)
         $exampleCoords = [
-            'i'    => 142,
-            'ii'   => 147,
-            'iii'  => 152,
-            'iv'   => 157, // Note: Form has a typo calling this 'vi'
-            'v'    => 162,
-            'vi'   => 167,
-            'vii'  => 172,
-            'viii' => 177,
-            'ix'   => 182,
-            'x'    => 187,
-            'xi'   => 192,
-            'xii'  => 197,
-            'xiii' => 202,
-            'xiv'  => 207,
+            'i'    => 132,
+            'ii'   => 137,
+            'iii'  => 142,
+            'iv'   => 147,
+            'v'    => 152,
+            'vi'   => 157,
+            'vii'  => 162,
+            'viii' => 167,
+            'ix'   => 172,
+            'x'    => 177,
+            'xi'   => 182,
+            'xii'  => 187,
+            'xiii' => 192,
+            'xiv'  => 198,
         ];
 
+        // Ensure keys in the array exactly match what your DB saves in example_incident_type
         if (!empty($incidentReport->example_incident_type) && isset($exampleCoords[$incidentReport->example_incident_type])) {
-            $pdf->SetXY(22, $exampleCoords[$incidentReport->example_incident_type]); 
+            $pdf->SetXY(13, $exampleCoords[$incidentReport->example_incident_type]);
             $pdf->Write(0, 'X');
         }
 
         // Print the text for "Others type of incident" (xiv)
         if (!empty($incidentReport->other_incident_type)) {
             // Check the xiv box
-            $pdf->SetXY(22, 207); 
+            $pdf->SetXY(13, 198); // Match the new X=29 and Y=198
             $pdf->Write(0, 'X');
             
             // Print the text on the line
-            $pdf->SetFont('Arial', '', 9);
-            $pdf->SetXY(65, 207); 
+            $pdf->SetFont('Arial', 'B', 9);
+            $pdf->SetXY(65, 197); // Shifted X right from 65 to 78 so it starts on the line
             $pdf->Write(0, substr($incidentReport->other_incident_type, 0, 80));
         }
 
         // 7. Brief Description
-        $pdf->SetFont('Arial', '', 8);
-        $pdf->SetXY(16, 215);
+        $pdf->SetFont('Arial', 'B', 6);
+        $pdf->SetXY(16, 214);
         $pdf->MultiCell(180, 5, $incidentReport->description ?? '');
 
 
         // ==========================================
-        // PAGE 2: Section B
+        // PAGE 2: Section A
         // ==========================================
         if ($pageCount > 1) {
             $templateId2 = $pdf->importPage(2);
             $pdf->AddPage();
             $pdf->useTemplate($templateId2);
 
-            $pdf->SetFont('Arial', '', 9);
+            // 8. PATIENT OUTCOME (Map to checkboxes)
+            if ($incidentReport->incident_type === 'actual') {
+                $pdf->SetFont('Arial', 'B', 12);
+                
+                // Calibrated based on Y=40 aligning with "SEVERE"
+                $outcomeCoords = [
+                    'none'         => 27,
+                    'mild'         => 32,
+                    'moderate'     => 37,
+                    'severe'       => 42, 
+                    'death'        => 47,
+                    'undetermined' => 52,
+                ];
+                
+                if (!empty($incidentReport->patient_outcome) && isset($outcomeCoords[$incidentReport->patient_outcome])) {
+                    $pdf->SetXY(42, $outcomeCoords[$incidentReport->patient_outcome]); // X coordinate for the tick box column
+                    $pdf->Write(0, 'X');
+                }
+            }
 
-            // 9. Immediate Action
-            $pdf->SetXY(15, 40);
-            $pdf->MultiCell(180, 5, $incidentReport->immediate_action ?? '');
+            $pdf->SetFont('Arial', 'B', 9);
+
+            // 9. Immediate Action (Moved down and shifted right into the empty box)
+            $pdf->SetXY(55, 66); 
+            $pdf->MultiCell(140, 5, $incidentReport->immediate_action ?? '');
+
+            // 10. Designation (Mapped to checkboxes instead of plain text)
+            $pdf->SetFont('Arial', 'B', 12);
+            $desigCoords = [
+                'nurse'           => [12.4, 104.5],
+                'house_officer'   => [12.4, 108.3],
+                'medical_officer' => [12.4, 111.7],
+                'specialist'      => [53, 104.5],
+                'pharmacist'      => [53, 110],
+                'other'           => [53, 111.7],
+            ];
+            
+            $designation = $incidentReport->reporter_designation;
+            if (!empty($designation) && isset($desigCoords[$designation])) {
+                $pdf->SetXY($desigCoords[$designation][0], $desigCoords[$designation][1]);
+                $pdf->Write(0, 'X');
+                
+                // Print specific "other" text on the line next to "OTHERS:"
+                if ($designation === 'other' && !empty($incidentReport->reporter_designation_other)) {
+                    $pdf->SetFont('Arial', 'B', 9);
+                    $pdf->SetXY(70, 111.6); 
+                    $pdf->Write(0, substr($incidentReport->reporter_designation_other, 0, 50));
+                }
+            }
+
+            $pdf->SetFont('Arial', 'B', 9);
 
             // 10. Reported By Name
-            $pdf->SetXY(25, 72);
+            $pdf->SetXY(107, 106.5); // Shifted down to align with "NAME:"
             $pdf->Write(0, $incidentReport->reporter_name);
 
-            // 10. Designation
-            $pdf->SetXY(25, 82);
-            $pdf->Write(0, ucwords(str_replace('_', ' ', $incidentReport->reporter_designation)));
-
             // 10. Date
-            $pdf->SetXY(145, 82);
+            $pdf->SetXY(107, 110); // Shifted down to align with "DATE:"
             $pdf->Write(0, $incidentReport->reported_at->format('d/m/Y'));
 
-            // Section B: 2. Date of Submission
-            $pdf->SetXY(55, 213);
-            $eirDate = $incidentReport->eir_submission_date ? $incidentReport->eir_submission_date->format('d/m/Y') : '';
-            $pdf->Write(0, $eirDate);
+            // ==========================================
+            // PAGE 2: Section B
+            // ==========================================
+
+            // Section B: 1. Action Taken Checkboxes
+            $pdf->SetFont('Arial', 'B', 12);
+            
+            // Estimated Y-coordinates for the action taken checkboxes
+            $actionCoords = [
+                'prescription_slip' => 154.8, 
+                'monitor_trend'     => 159.5, 
+                'rca'               => 164.5, 
+                'mirca'             => 169.5, 
+            ];
+
+            $actions = is_array($incidentReport->actions_taken) ? $incidentReport->actions_taken : [];
+            foreach ($actions as $action) {
+                if (isset($actionCoords[$action])) {
+                    // Estimated X=69 for the checkbox column. Adjust if the 'X' is too far left/right.
+                    $pdf->SetXY(75.5, $actionCoords[$action]); 
+                    $pdf->Write(0, 'X');
+                }
+            }
+
+            // Section B: 1. Additional Comments
+            $pdf->SetFont('Arial', 'B', 9);
+            // Estimated coordinates below the "Additional comments :" text
+            $pdf->SetXY(74, 179); 
+            $pdf->MultiCell(125, 5, $incidentReport->review_comments ?? '');
+        
+            // Section B: 2. Date of Submission - Split to avoid printing over the form's slashes
+            if ($incidentReport->eir_submission_date) {
+                // Print Day
+                $pdf->SetXY(107, 208); // Estimated X for Day blank
+                $pdf->Write(0, $incidentReport->eir_submission_date->format('d'));
+                
+                // Print Month
+                $pdf->SetXY(117, 208); // Estimated X for Month blank
+                $pdf->Write(0, $incidentReport->eir_submission_date->format('m'));
+                
+                // Print Year
+                $pdf->SetXY(128, 208); // Estimated X for Year blank
+                $pdf->Write(0, $incidentReport->eir_submission_date->format('Y'));
+            }
             
             // Section B: 3. Risk Manager Name
-            $pdf->SetXY(25, 257);
+            $pdf->SetXY(85, 233.7);
             $pdf->Write(0, $incidentReport->reviewer_name ?? '');
 
             // Section B: 3. Risk Manager Designation
-            $pdf->SetXY(25, 268);
+            $pdf->SetXY(97, 245.4);
             $pdf->Write(0, $incidentReport->reviewer_designation ?? '');
 
             // Section B: 3. Risk Manager Date
-            $pdf->SetXY(145, 268);
+            $pdf->SetXY(83, 249.4);
             $pdf->Write(0, $incidentReport->reviewed_at ? $incidentReport->reviewed_at->format('d/m/Y') : '');
         }
 
