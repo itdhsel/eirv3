@@ -6,7 +6,7 @@ use App\Models\IncidentReport;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
-class Eirv3DashboardController extends Controller
+class DashboardController extends Controller
 {
     public function __invoke(Request $request): View
     {
@@ -31,11 +31,27 @@ class Eirv3DashboardController extends Controller
         // Define who can review/see all reports under the new RBAC system
         $isReviewer = in_array($role, ['superadmin', 'qa', 'hod', 'lo'], true);
 
-        // Restrict data at the SQL query level. The User role can never query
-        // or count reports owned by another user.
+        // Restrict data at the SQL query level based on the new RBAC system
         $visibleReports = IncidentReport::query()
-            ->when(! $isReviewer, fn ($query) => $query->where('reporter_id', $user->id));
+        // 1. LO and HOD Filter
+        ->when(in_array($role, ['lo', 'hod']), function ($query) use ($user) {
+            $query->where(function ($q) use ($user) {
+                // See their own submitted reports
+                $q->where('reporter_id', $user->id)
+                // OR see reports submitted by ANY user who shares their exact 'jabatan'
+                ->orWhereHas('reporter', function ($reporterQuery) use ($user) {
+                    $reporterQuery->where('jabatan', $user->jabatan);
+                })
+                // OR see reports where their department was explicitly tagged in the form's dropdown
+                ->orWhereJsonContains('departments', $user->jabatan); 
+            });
+        })
+        // 2. Standard User Filter
+        ->when($role === 'user', function ($query) use ($user) {
+            $query->where('reporter_id', $user->id);
+        });
 
+        // 3. Superadmin and QA automatically skip the filters above and see EVERYTHING
         $statusCounts = (clone $visibleReports)
             ->selectRaw('status, COUNT(*) as report_count')
             ->groupBy('status')

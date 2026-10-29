@@ -23,20 +23,41 @@ class IncidentReportController extends Controller
     public function index(): View
     {
         Gate::authorize('viewAny', IncidentReport::class);
+        
+        $user = Auth::user();
+        $role = $user->role->slug ?? 'user';
 
-        // Determine if the user has review privileges based on the new roles
-        $canReview = in_array(Auth::user()->role->slug ?? 'user', ['superadmin', 'qa', 'hod', 'lo'], true);
+        $canReview = in_array($role, ['superadmin', 'qa', 'hod', 'lo'], true);
 
         $reports = IncidentReport::query()
-            // Filter reports: if they are not a reviewer, only show their own
-            ->when(! $canReview, fn ($query) =>
-                $query->where('reporter_id', Auth::id())
-            )
-            ->with('reporter:id,name')
+            // 1. LO and HOD Filter
+            ->when(in_array($role, ['lo', 'hod']), function ($query) use ($user) {
+                $query->where(function ($q) use ($user) {
+                    // See their own submitted reports
+                    $q->where('reporter_id', $user->id)
+                      
+                      // OR see reports submitted by ANY user who shares their exact 'jabatan'
+                      // (e.g., Abdul Muhaimin sees Nurnuman's reports because both are JTM)
+                      ->orWhereHas('reporter', function ($reporterQuery) use ($user) {
+                          $reporterQuery->where('jabatan', $user->jabatan);
+                      })
+                      
+                      // OR see reports where their department was explicitly tagged in the form's dropdown
+                      ->orWhereJsonContains('departments', $user->jabatan); 
+                });
+            })
+            
+            // 2. Standard User Filter
+            // (e.g., Test User only sees their own, never Nurnuman's)
+            ->when($role === 'user', function ($query) use ($user) {
+                $query->where('reporter_id', $user->id);
+            })
+            
+            // 3. Superadmin and QA automatically skip the filters above and see EVERYTHING
+            ->with('reporter:id,name,jabatan')
             ->latest('created_at')
             ->paginate(15);
 
-        // Add $canReview to the compact() array so the view can use it
         return view('ir.index', compact('reports', 'canReview'));
     }
 
