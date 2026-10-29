@@ -70,4 +70,9 @@ class IncidentReport extends Model
     {
         return $this->belongsTo(User::class, 'reviewer_id');
     }
+
+    public function rca()
+    {
+        return $this->hasOne(IncidentRca::class);
+    }
 }

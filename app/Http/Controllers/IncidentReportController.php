@@ -206,9 +206,217 @@ class IncidentReportController extends Controller
     public function downloadRca(IncidentReport $incidentReport)
     {
         Gate::authorize('manageQaTasks', $incidentReport);
+        
+        $rca = $incidentReport->rca;
+        abort_unless($rca, 404, 'RCA data not found.');
 
-        $pdf = Pdf::loadView('ir.pdf-rca', ['incident' => $incidentReport]);
-        return $pdf->download('rca-form-' . $incidentReport->id . '.pdf');
+        // Initialize FPDI
+        $pdf = new Fpdi();
+        $filePath = storage_path('app/RCA_FORM.pdf');
+        $pageCount = $pdf->setSourceFile($filePath);
+
+        // ==========================================
+        // PAGE 1: TEAM & BASIC INFO
+        // ==========================================
+        $pdf->AddPage();
+        $pdf->useTemplate($pdf->importPage(1));
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->SetTextColor(0, 0, 0);
+
+        // Hospital Name, RN, Incident Type (Estimated Coordinates)
+        $pdf->SetXY(50, 45); 
+        $pdf->Write(0, $incidentReport->facility_name);
+        
+        $pdf->SetXY(80, 55); 
+        $pdf->Write(0, $incidentReport->patient_identifier ?? 'N/A');
+        
+        $pdf->SetXY(45, 65); 
+        $pdf->Write(0, $incidentReport->incident_type === 'actual' ? 'Actual Incident' : 'Near Miss');
+
+        // Investigation Team
+        $pdf->SetXY(25, 95); // Team Leader
+        $pdf->Write(0, $rca->investigation_team['leader'] ?? '');
+        
+        $pdf->SetXY(25, 115); // Team Members (Using MultiCell in case it's a long list)
+        $pdf->MultiCell(70, 5, $rca->investigation_team['members'] ?? '');
+
+        // ==========================================
+        // PAGE 2: SUMMARY & SEQUENCE OF EVENTS
+        // ==========================================
+        if ($pageCount >= 2) {
+            $pdf->AddPage();
+            $pdf->useTemplate($pdf->importPage(2));
+            $pdf->SetFont('Arial', '', 9);
+
+            // Summary
+            $pdf->SetXY(15, 30);
+            $pdf->MultiCell(180, 5, $rca->summary ?? 'No summary provided.');
+
+            // Sequence of Events (Dynamic Table Loop)
+            $startY = 85; // The Y coordinate where the first row of the table starts
+            $rowHeight = 10; // How much space to jump down for each new row
+
+            $events = $rca->sequence_of_events ?? [];
+            foreach ($events as $index => $event) {
+                $currentY = $startY + ($index * $rowHeight);
+
+                $pdf->SetXY(15, $currentY);
+                $pdf->Write(0, $event['date'] ?? '-');
+
+                $pdf->SetXY(40, $currentY);
+                $pdf->Write(0, $event['time'] ?? '-');
+
+                $pdf->SetXY(60, $currentY);
+                $pdf->Write(0, substr($event['location'] ?? '-', 0, 15));
+
+                $pdf->SetXY(90, $currentY);
+                $pdf->Write(0, substr($event['description'] ?? '-', 0, 25));
+
+                $pdf->SetXY(140, $currentY);
+                $pdf->Write(0, substr($event['person'] ?? '-', 0, 15));
+
+                $pdf->SetXY(170, $currentY);
+                $pdf->Write(0, substr($event['comments'] ?? '-', 0, 20));
+            }
+        }
+
+        // ==========================================
+        // PAGE 3: FISHBONE DIAGRAM
+        // ==========================================
+        if ($pageCount >= 3) {
+            $pdf->AddPage();
+            $pdf->useTemplate($pdf->importPage(3));
+            $pdf->SetFont('Arial', '', 8); // Smaller font to fit inside the diagram boxes
+
+            $factors = $rca->contributing_factors ?? [];
+            
+            // Top Row Boxes (Estimated Coordinates)
+            $pdf->SetXY(20, 35); // Management & Org
+            $pdf->MultiCell(50, 4, $factors['management_organizational'] ?? '');
+            
+            $pdf->SetXY(80, 35); // Team
+            $pdf->MultiCell(50, 4, $factors['team'] ?? '');
+            
+            $pdf->SetXY(140, 35); // Task & Tech
+            $pdf->MultiCell(50, 4, $factors['task_technology'] ?? '');
+
+            // Bottom Row Boxes (Estimated Coordinates)
+            $pdf->SetXY(15, 130); // External
+            $pdf->MultiCell(40, 4, $factors['external'] ?? '');
+            
+            $pdf->SetXY(60, 130); // Work / Env
+            $pdf->MultiCell(40, 4, $factors['work_environmental'] ?? '');
+            
+            $pdf->SetXY(105, 130); // Individual Staff
+            $pdf->MultiCell(40, 4, $factors['individual_staff'] ?? '');
+            
+            $pdf->SetXY(150, 130); // Patient
+            $pdf->MultiCell(40, 4, $factors['patient'] ?? '');
+        }
+
+        // ==========================================
+        // PAGES 4-5: CONTRIBUTING FACTORS CHECKLIST
+        // ==========================================
+        if ($pageCount >= 5) {
+            // Passing through blank pages since we mapped the custom text directly into the Fishbone on Page 3
+            $pdf->AddPage(); 
+            $pdf->useTemplate($pdf->importPage(4));
+            
+            $pdf->AddPage(); 
+            $pdf->useTemplate($pdf->importPage(5));
+        }
+
+        // ==========================================
+        // PAGE 6: 5 RULES OF CAUSATION TABLE
+        // ==========================================
+        if ($pageCount >= 6) {
+            $pdf->AddPage();
+            $pdf->useTemplate($pdf->importPage(6));
+            $pdf->SetFont('Arial', '', 9);
+
+            $startY = 85; // Starting Y coordinate for the first row of the causation table
+            $rowHeight = 15; // Space between rows
+            $causations = $rca->causation_analysis ?? [];
+
+            foreach ($causations as $index => $cause) {
+                $currentY = $startY + ($index * $rowHeight);
+
+                // Cause / Root Cause
+                $pdf->SetXY(15, $currentY);
+                $pdf->MultiCell(35, 4, substr($cause['root_cause'] ?? '-', 0, 100));
+
+                // Effect (Skipping "Causing" column as it is static text)
+                $pdf->SetXY(85, $currentY);
+                $pdf->MultiCell(45, 4, substr($cause['effect'] ?? '-', 0, 100));
+
+                // Event / Incident (Skipping "Leading to" column as it is static text)
+                $pdf->SetXY(150, $currentY);
+                $pdf->MultiCell(45, 4, substr($cause['event'] ?? '-', 0, 100));
+            }
+        }
+
+        // ==========================================
+        // PAGE 7: ROOT CAUSES SUMMARY
+        // ==========================================
+        if ($pageCount >= 7) {
+            $pdf->AddPage();
+            $pdf->useTemplate($pdf->importPage(7));
+            $pdf->SetFont('Arial', '', 9);
+
+            // 10. Root Cause(s) summary block
+            $pdf->SetXY(15, 140); // Estimated Y-coordinate below the text
+            $pdf->MultiCell(180, 5, $rca->root_causes ?? '');
+        }
+
+        // ==========================================
+        // PAGE 8: ACTION PLAN
+        // ==========================================
+        if ($pageCount >= 8) {
+            // Import and add pages 3 through 7 purely as blank pass-throughs for now
+            for ($i = 3; $i <= 7; $i++) {
+                $pdf->AddPage();
+                $pdf->useTemplate($pdf->importPage($i));
+            }
+
+            $pdf->AddPage();
+            $pdf->useTemplate($pdf->importPage(8));
+            $pdf->SetFont('Arial', '', 9);
+
+            // Action Plan (Dynamic Table Loop)
+            $startY = 60; // Estimated starting Y for the Action Plan table
+            $rowHeight = 15; 
+
+            $actions = $rca->action_plan ?? [];
+            foreach ($actions as $index => $action) {
+                $currentY = $startY + ($index * $rowHeight);
+
+                $pdf->SetXY(15, $currentY); // Number
+                $pdf->Write(0, $index + 1);
+
+                $pdf->SetXY(25, $currentY); // Factor
+                $pdf->Write(0, substr($action['factor'] ?? '-', 0, 20));
+
+                $pdf->SetXY(65, $currentY); // Description
+                $pdf->Write(0, substr($action['description'] ?? '-', 0, 30));
+
+                $pdf->SetXY(120, $currentY); // Hierarchy
+                $pdf->Write(0, $action['hierarchy'] ?? '-');
+
+                $pdf->SetXY(145, $currentY); // Person Responsible
+                $pdf->Write(0, substr($action['person'] ?? '-', 0, 15));
+
+                // Evidence and Date (Shifted further right)
+                $pdf->SetXY(170, $currentY);
+                $pdf->Write(0, $action['date'] ?? '-');
+            }
+        }
+
+        $filename = 'rca-report-' . $incidentReport->id . '.pdf';
+        
+        return response($pdf->Output('S'), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $filename . '"'
+        ]);
     }
 
     public function downloadCompleted(IncidentReport $incidentReport)

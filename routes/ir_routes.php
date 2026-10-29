@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\IncidentReportController;
 use App\Http\Controllers\IncidentReviewController;
+use App\Http\Controllers\IncidentRcaController;
 use Illuminate\Support\Facades\Route;
 
 // PUBLIC ROUTES: Accessible to everyone (guests and logged-in users)
@@ -24,3 +25,12 @@ Route::middleware('auth')->prefix('ir')->name('ir.')->group(function () {
     Route::get('/{incidentReport}/download-rca', [IncidentReportController::class, 'downloadRca'])->name('download.rca');
     Route::get('/{incidentReport}/download-completed', [IncidentReportController::class, 'downloadCompleted'])->name('download.completed');
 });
+
+// Add this inside your protected Route::middleware('auth')->prefix('ir')->name('ir.')->group(...)
+Route::get('/{incidentReport}/rca/create', [IncidentRcaController::class, 'create'])->name('rca.create');
+Route::post('/{incidentReport}/rca', [IncidentRcaController::class, 'store'])->name('rca.store');
+// View the submitted RCA (Read-only with Approval buttons for HOD/QA)
+Route::get('/{incidentReport}/rca/show', [IncidentRcaController::class, 'show'])->name('rca.show');
+
+// Process the HOD or QA approval/rejection
+Route::post('/{incidentReport}/rca/review', [IncidentRcaController::class, 'review'])->name('rca.review');

@@ -343,4 +343,23 @@
     </form>
 </section>
 @endif
+
+<!-- SECTION D: RCA SUBMISSION (Visible to User/LO) -->
+@if(in_array(strtolower($incident->status), ['rca_required', 'returned']) && (auth()->id() === $incident->reporter_id || in_array(auth()->user()->role->slug ?? '', ['lo', 'hod'])))
+<section class="ir-panel" style="border: 1px solid #fca5a5;">
+    <div class="ir-panel-heading" style="background-color: #fef2f2;">
+        <span style="background-color: #ef4444; color: white;">RCA</span>
+        <div>
+            <h2 style="color: #991b1b;">Root Cause Analysis Required</h2>
+            <p style="color: #b91c1c;">Please complete the RCA2 London Protocol form</p>
+        </div>
+    </div>
+    <div style="padding: 24px; background-color: #fff; display: flex; justify-content: space-between; align-items: center; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
+        <p style="margin: 0; color: #64748b; font-size: 0.95em;">This incident requires a thorough investigation and Root Cause Analysis.</p>
+        <a href="{{ route('ir.rca.create', $incident) }}" class="ir-btn ir-btn-orange">
+            Proceed to Fill RCA Form &rarr;
+        </a>
+    </div>
+</section>
+@endif
 @endsection
